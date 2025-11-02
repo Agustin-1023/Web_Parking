@@ -10,9 +10,11 @@ body {
 .login-box {
 	width:  320px;
 	height: 420px;
-	background:  yellow;
+	background:  black;
 	color #fff;
 	top: 50%;
+	border-left: 100px;
+	border-color:  yellow;
 	left: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
@@ -30,28 +32,125 @@ body {
 }
 
 .login-box h1 {
-	margin: 0px;
-	padding: 0 0 20px;
-	text-align: cemter;
+	margin: 0;
+	padding: 0;
+	text-align: center;
 	font-size: 22px;
+	color: yellow;
 }
 .login-box label{
-	margin: 0px;
+	margin: 14px 0px 0px;
 	padding: 0px;
 	font-weight: bold;
 	display: block;
+	color: yellow;
 }
 .login-box input{
 	width: 100%;
-	margin-bottom: 20px;
+	color: black;
+	background: yellow;
 }
 .login-box input[type="text"],
 .login-box input[type="password"]{
 	border: none;
-	border-bottom: 1px solid #000;
+	border-bottom: 2px solid #666;
 	background: transparent;
 	outline: none;
 	height: 40px;
-	color: black;
+	color: yellow;
 	font-size: 16px;
+}
+
+.login-box input[type="submit"] {
+	
+	margin-top: 10px;
+	border: none;
+	outline: none;
+	height: 40px;
+	background: yellow;
+	color: black;
+	font-size: 20px;
+	border-radius: 20px;
+
+}
+.login-box a
+{
+	text-decoration: none;
+	font-size:  12px;
+	line-height: 20px;
+	color: darkgrey;
+}
+.login-box-registro {
+	width:  320px;
+	height: 550px;
+	background:  black;
+	color #fff;
+	top: 58%;
+	border-left: 100px;
+	border-color:  yellow;
+	left: 50%;
+	position: absolute;
+	transform: translate(-50%, -50%);
+	box-sizing: border-box;
+	padding: 70px 30px;
+}
+.login-box-registro .avatar{
+	width:  100px;
+	height: 100px;
+	border-radius: 50%;
+	position: absolute;
+	top: -50px;
+	left: calc(50% - 50px);
+	zoom: calc(-25%);
+}
+
+.login-box-registro h1 {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	font-size: 22px;
+	color: yellow;
+}
+.login-box-registro label{
+	margin: 14px 0px 0px;
+	padding: 0px;
+	font-weight: bold;
+	display: block;
+	color: yellow;
+}
+.login-box-registro input{
+	width: 100%;
+	color: black;
+	background: yellow;
+}
+.login-box-registro input[type="text"],
+.login-box-registro input[type="number"],
+.login-box-registro input[type="password"]{
+	border: none;
+	border-bottom: 2px solid #666;
+	background: transparent;
+	outline: none;
+	height: 40px;
+	color: yellow;
+	font-size: 16px;
+}
+
+.login-box-registro input[type="submit"] {
+	
+	margin-top: 10px;
+	border: none;
+	outline: none;
+	height: 40px;
+	background: yellow;
+	color: black;
+	font-size: 20px;
+	border-radius: 20px;
+
+}
+.login-box-registro a
+{
+	text-decoration: none;
+	font-size:  12px;
+	line-height: 20px;
+	color: darkgrey;
 }
