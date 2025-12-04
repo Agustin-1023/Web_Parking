@@ -1,25 +1,24 @@
 body {
-	--margin: 0;
-	--padding: 0;
 	background: url(../assets/background2.png)
-	 no-repeat center top;
+	 no-repeat center top ;
 	background-size: cover;
 	font-family:  sans-serif;
 	height: 100 vh;
 }
 .login-box {
-	width:  320px;
-	height: 420px;
-	background:  black;
-	color #fff;
+	width:  60%;
+	height: 60%;
+	background:  white;
 	top: 50%;
 	border-left: 100px;
-	border-color:  yellow;
+	border-color: blue;
 	left: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
 	box-sizing: border-box;
 	padding: 70px 30px;
+	border-radius: 30px;
+	text-align: center;
 }
 .login-box .avatar{
 	width:  100px;
@@ -36,42 +35,46 @@ body {
 	padding: 0;
 	text-align: center;
 	font-size: 22px;
-	color: yellow;
+	color: blue;
 }
 .login-box label{
 	margin: 14px 0px 0px;
 	padding: 0px;
 	font-weight: bold;
 	display: block;
-	color: yellow;
+	color: blue;
 }
 .login-box input{
 	width: 100%;
 	color: black;
-	background: yellow;
+	background: blue;
+		justify-content: center;
+
 }
 .login-box input[type="text"],
 .login-box input[type="password"]{
-	border: none;
-	border-bottom: 2px solid #666;
+	border-radius: 15px ;
+	padding-left: 2%;
 	background: transparent;
-	outline: none;
+	outline: grey;
 	height: 40px;
-	color: yellow;
+	color: blue;
 	font-size: 16px;
 }
 
 .login-box input[type="submit"] {
-	
+	/*----boton*/
+	text-align: center;
+	height: 50px;
+	width: 200px;
 	margin-top: 10px;
 	border: none;
 	outline: none;
-	height: 40px;
-	background: yellow;
-	color: black;
+	background: blue;
+	color: white;
 	font-size: 20px;
-	border-radius: 20px;
-
+	font-weight: bold;
+	border-radius: 7px;
 }
 .login-box a
 {
@@ -80,77 +83,21 @@ body {
 	line-height: 20px;
 	color: darkgrey;
 }
-.login-box-registro {
-	width:  320px;
-	height: 550px;
-	background:  black;
-	color #fff;
-	top: 58%;
-	border-left: 100px;
-	border-color:  yellow;
-	left: 50%;
-	position: absolute;
-	transform: translate(-50%, -50%);
-	box-sizing: border-box;
-	padding: 70px 30px;
+.login-box button{
+	margin-top: 300px;
+	padding: 300px;
 }
-.login-box-registro .avatar{
-	width:  100px;
-	height: 100px;
-	border-radius: 50%;
-	position: absolute;
-	top: -50px;
-	left: calc(50% - 50px);
-	zoom: calc(-25%);
-}
-
-.login-box-registro h1 {
-	margin: 0;
-	padding: 0;
+.input[type="submit"] {
 	text-align: center;
-	font-size: 22px;
-	color: yellow;
-}
-.login-box-registro label{
-	margin: 14px 0px 0px;
-	padding: 0px;
-	font-weight: bold;
-	display: block;
-	color: yellow;
-}
-.login-box-registro input{
-	width: 100%;
-	color: black;
-	background: yellow;
-}
-.login-box-registro input[type="text"],
-.login-box-registro input[type="number"],
-.login-box-registro input[type="password"]{
-	border: none;
-	border-bottom: 2px solid #666;
-	background: transparent;
-	outline: none;
-	height: 40px;
-	color: yellow;
-	font-size: 16px;
-}
-
-.login-box-registro input[type="submit"] {
-	
-	margin-top: 10px;
+	height: 10%;
+	width: 30%;
+	margin-top: 60px;
 	border: none;
 	outline: none;
-	height: 40px;
-	background: yellow;
-	color: black;
+	background: blue;
+	color: white;
 	font-size: 20px;
-	border-radius: 20px;
-
-}
-.login-box-registro a
-{
-	text-decoration: none;
-	font-size:  12px;
-	line-height: 20px;
-	color: darkgrey;
+	border-radius: 7px;
+	text-align: center;
+	align-items: center;
 }
