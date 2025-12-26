@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>PANEL ADMINISTRACION</title>
+	<link rel="stylesheet"  type="text/css" href="./css/admin_parking.css">
+
+</head>
+<body>
+
+	 <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Administracion</h3>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li><a href="#">Estadisticas</a></li>
+            <li><a href="#">Reservas</a></li>
+            <li><a href="#">Lugares</a></li>
+            <li><a href="#">Pisos</a></li>
+            <li><a href="#">Usuarios</a></li>
+            <li><a href="#">Estacionamiento</a></li>
+            <li><a href="#">Reportes</a></li>
+            <li><a href="#">Configuraciones</a></li>
+            <li><a href="#">Administradores</a></li>
+            <li><a href="#">Cerrar Sesion</a></li>
+        </ul>
+    </aside>
+
+
+	<div class="main-admin">
+	 	<h1>PANEL DE ESTACIONAMIENTOS</h1>
+			<section class="last-reservations">
+			    <h2>Últimas reservas</h2>
+			    <table class="reservations-table">
+			        <thead>
+			            <tr>
+			                <th>Nombre</th>
+			                <th>Direccion</th>
+			                <th>Pisos</th>
+			                <th>Acciones</th>
+			            </tr>
+			        </thead>
+			        <tbody>
+			            <tr>
+			                <td>Juan Parking</td>
+			                <td>Calle Falta 123</td>
+			                <td>1</td>
+			                <td><button id="button-edit-parkin" type="submit">MODIFICAR</button>
+							<button id="button-delete-parkin" type="submit">ELIMINAR</button></td>
+			            </tr>
+			            <tr>
+			                <td>Ana Parking</td>
+			                <td>Maldonado 21</td>
+			                <td>2</td>
+			            </tr>
+			        </tbody>
+			    </table>
+			</section>
+		<div class="buttons-parkins">
+			<button id="button-create-parkin" type="submit">CREAR</button>
+			<button id="button-create-parkin" type="submit">MODIFICAR</button>
+			<button id="button-create-parkin" type="submit">ELIMINAR</button>
+		</div>
+	</div>
+</body>
+</html>

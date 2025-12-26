@@ -1,0 +1,140 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background-color: #f4f4f4;
+}
+.main-admin h1 {
+	margin-top: 0.2%;
+	padding: 0;
+	text-align: center;
+	font-size: 22px;
+	color: blue;
+}
+.main-admin label{
+	margin: 14px 0px 0px;
+	padding: 0px;
+	font-weight: bold;
+	display: block;
+	color: blue;
+}
+
+.main-admin {
+    margin-left: 250px; /* MISMO ancho que la sidebar */
+    padding: 20px;
+}
+/*Sidebar*/
+.sidebar {
+    width: 150px;
+    background-color: #2c3e50;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    padding: 20px;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .main-admin {
+        margin-left: 0;
+    }
+}
+.sidebar ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+.sidebar ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar a {
+    font-family: Arial;
+    text-decoration: none;
+    color: white;
+}
+
+.last-reservations {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-top: 30px;
+}
+
+.last-reservations h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+/* Tabla */
+.reservations-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.reservations-table th,
+.reservations-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.reservations-table th {
+    background-color: #f4f6f8;
+    font-weight: bold;
+}
+
+/* Hover fila */
+.reservations-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+#button-create-parkin {
+    height: 10%;
+    margin-top: 60px;
+    border: none;
+    outline: none;
+    background: blue;
+    color: white;
+    font-size: 20px;
+    border-radius: 7px;
+    text-align: center;
+    align-items: center;
+    padding: 2%;
+}
+#button-edit-parkin{
+    /*height: 10%;
+    margin-top: 60px;*/
+    border: none;
+    outline: none;
+    background: orange;
+    color: white;
+    font-size: 20px;
+    border-radius: 7px;
+    text-align: center;
+    align-items: center;
+    padding: 2%;
+}
+
+#button-delete-parkin{
+    /*height: 10%;
+    margin-top: 60px;*/
+    border: none;
+    outline: none;
+    background: red;
+    color: white;
+    font-size: 20px;
+    border-radius: 7px;
+    text-align: center;
+    align-items: center;
+    padding: 2%;
+}
