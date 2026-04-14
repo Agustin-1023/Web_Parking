@@ -1,0 +1,182 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background-color: #f4f4f4;
+}
+.main-admin h1 {
+	margin-top: 0.2%;
+	padding: 0;
+	text-align: center;
+	font-size: 22px;
+	color: blue;
+}
+.main-admin label{
+	margin: 14px 0px 0px;
+	padding: 0px;
+	font-weight: bold;
+	display: block;
+	color: blue;
+}
+
+.main-admin {
+    margin-left: 250px; /* MISMO ancho que la sidebar */
+    padding: 20px;
+}
+
+/* Contenedor de las cards */
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que las cards se ajusten */
+    gap: 20px; /* Espacio entre las cards */
+    padding: 20px;
+    justify-content: center;
+}
+/* Estilos de la tarjeta */
+.card {
+   
+    border-radius: 10px; /* Esquinas redondeadas */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    width: 200px; /* Ancho fijo para la card */
+    overflow: hidden; /* Para que la imagen no se salga */
+    transition: transform 0.3s ease; /* Efecto al pasar el mouse */
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: white;
+}
+.card h3{
+	color: white;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Efecto de elevación */
+}
+
+.card-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.card-content h3 {
+    margin-top: 0;
+}
+
+.card-content p {
+    font-size: 1em;
+}
+/* Diseño responsivo (opcional) */
+@media (max-width: 768px) {
+}
+.card-available,
+.card-occupied,
+.card-reservations,
+.card-users {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+/* Colores por tipo de tarjeta */
+.card-available {
+    background-color: #4CAF50; /* verde */
+}
+
+.card-occupied {
+    background-color: #F44336; /* rojo */
+}
+
+.card-reservations {
+    background-color: #FF9800; /* naranja */
+}
+
+.card-users {
+    background-color: #2196F3; /* azul */
+}
+
+/*Sidebar*/
+.sidebar {
+    width: 150px;
+    background-color: #2c3e50;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    padding: 20px;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .main-admin {
+        margin-left: 0;
+    }
+}
+.sidebar ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+.sidebar ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar a {
+    font-family: Arial;
+    text-decoration: none;
+    color: white;
+}
+
+.last-reservations {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-top: 30px;
+}
+
+.last-reservations h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+/* Tabla */
+.reservations-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.reservations-table th,
+.reservations-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.reservations-table th {
+    background-color: #f4f6f8;
+    font-weight: bold;
+}
+
+/* Hover fila */
+.reservations-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Estados */
+.status.active {
+    color: green;
+    font-weight: bold;
+}
+
+.status.finished {
+    color: gray;
+    font-weight: bold;
+}
