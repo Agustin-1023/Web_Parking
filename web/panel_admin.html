@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>PANEL ADMINISTRACION</title>
+	<link rel="stylesheet"  type="text/css" href="./css/panel_admin.css">
+</head>
+<body>
+
+	 <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Administracion</h3>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li><a href="#">Estadisticas</a></li>
+            <li><a href="#">Reservas</a></li>
+            <li><a href="#">Lugares</a></li>
+            <li><a href="#">Pisos</a></li>
+            <li><a href="#">Usuarios</a></li>
+            <li><a href="#">Estacionamiento</a></li>
+            <li><a href="#">Reportes</a></li>
+            <li><a href="#">Configuraciones</a></li>
+            <li><a href="#">Administradores</a></li>
+            <li><a href="#">Cerrar Sesion</a></li>
+        </ul>
+    </aside>
+
+
+	<div class="main-admin">
+	 	<h1>PANEL DE CONTROL ADMINISTRADOR</h1>
+			<div class="container">
+				<div class="card">
+			        <div class="card-available">
+			            <div class="card-content">
+			            	<!--insertar logo de $ -->
+			                <h3>LUGARES DISPONIBLES</h3>
+			                <p>X / Y</p>
+			            </div>
+			        </div>
+		        </div>
+				<div class="card">
+			        <!-- Puedes duplicar el div .card para más tarjetas -->
+			        <div class="card-occupied">
+			            <!--insertar logo de espacio disponible -->
+			            <div class="card-content">
+			                <h3>LUGARES OCUPADOS</h3>
+			                <p>Z / Y</p>
+			            </div>
+			        </div>
+				</div>
+				<div class="card">
+					<div class="card-reservations">
+		            	<!--insertar logo de espacio disponible -->
+		    	        <div class="card-content">
+		        	        <h3>RESERVAS ACTIVAS</h3>
+		                	<p>A</p>
+			            </div>
+			        </div>
+			    </div>
+				<div class="card">
+			         <div class="card-users">
+			            <!--insertar logo de espacio usuarios -->
+			            <div class="card-content">
+			                <h3>TOTAL USUARIOS</h3>
+			                <p>U</p>
+			            </div>
+			        </div>
+			    </div>
+   			</div>
+   			<section class="last-reservations">
+    <h2>Últimas reservas</h2>
+
+    <table class="reservations-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Lugar</th>
+                <th>Piso</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Juan Pérez</td>
+                <td>A12</td>
+                <td>1</td>
+                <td class="status active">Activa</td>
+                <td>20/12/2025</td>
+            </tr>
+            <tr>
+                <td>Ana Gómez</td>
+                <td>B07</td>
+                <td>2</td>
+                <td class="status finished">Finalizada</td>
+                <td>19/12/2025</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+	</div>
+</body>
+</html>

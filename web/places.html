@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Lugares PARKING</title>
+	<link rel="stylesheet"  type="text/css" href="./css/admin_parking.css">
+
+</head>
+<body>
+
+	 <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Administracion</h3>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li><a href="#">Estadisticas</a></li>
+            <li><a href="#">Reservas</a></li>
+            <li><a href="#">Lugares</a></li>
+            <li><a href="#">Pisos</a></li>
+            <li><a href="#">Usuarios</a></li>
+            <li><a href="#">Estacionamiento</a></li>
+            <li><a href="#">Reportes</a></li>
+            <li><a href="#">Configuraciones</a></li>
+            <li><a href="#">Administradores</a></li>
+            <li><a href="#">Cerrar Sesion</a></li>
+        </ul>
+    </aside>
+
+
+	<div class="main-admin">
+	 	<h1>PANEL DE LUGARES</h1>
+			<section class="last-reservations">
+			    <h2>Mapa de Lugares</h2>
+			    	<label>Estacionamientos
+			    		<select>
+				    		<option value=''>--Seleccione estacionamiento--</option>
+				    		<option value='parking-1'>Juan Parking</option>
+				    		<option value='parking-2'>Ana Parking</option>
+			    		</select>
+			    	Piso
+			    		<select>
+			    			<option value="">--Seleccione piso</option>
+			    			<option value="Piso-1">Piso 1</option>
+			    			<option value="Piso-2">Piso 2</option>
+			    			<option value="Piso-3">Piso 3</option>
+			    		</select>
+			    	</label>
+			    	<label>Pisos</label>
+					<button id="button-view-parkin" type="submit">VER</button>
+                	<button id="button-edit-parkin" type="submit">MODIFICAR</button>
+					<button id="button-delete-parkin" type="submit">ELIMINAR</button>
+			</section>
+		<div class="buttons-parkins">
+			<button id="button-create-bottom" type="submit">CREAR</button>
+			<button id="button-edit-bottom" type="submit">MODIFICAR</button>
+			<button id="button-delete-bottom" type="submit">ELIMINAR</button>
+		</div>
+	</div>
+</body>
+</html>

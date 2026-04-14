@@ -1,0 +1,7 @@
+node_modules/
+db.js
+.env
+*.swp
+*.swn
+*swo
+.db.js.swp
