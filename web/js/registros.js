@@ -27,14 +27,12 @@ document.getElementById('FormularioRegistro').addEventListener('submit',
             },
             body: JSON.stringify(ObjetoUsuario)
         });
-	const resJson ) await res.json();
+	const resJson = await respuesta.json();
 
         if (respuesta.ok) {
 		alert('Usuario Registrado: ' + resJson.message);
 		document.getElementById('FormularioRegistro').reset();
 		window.location.href = 'index.html';
-            alert('Usuario Registrado: ' + resultado.message);
-            document.getElementById('FormularioRegistro').reset();
         } else {
             alert('Error al guardar'+ resJson.message);
         }
@@ -42,3 +40,5 @@ document.getElementById('FormularioRegistro').addEventListener('submit',
         console.error('Error de conexion: ', error);
     }
 });
+
+
