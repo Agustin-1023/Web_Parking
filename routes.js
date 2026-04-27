@@ -1,6 +1,6 @@
 const express = require('express')
 const routes = express.Router()
-const metodos = require("./contorladores/validacion.control.js");
+const metodos = require("./controladores/validacion.control.js");
 //ruta pra insertar usuario
 routes.post("/api/login", metodos.login);
 
