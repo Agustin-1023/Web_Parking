@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="cliente viewport" cont="width=device-width, initial/scale=1.0">
+	<title>Portal de Reservas = Parking</title>
+	<link rel="stylesheet" href="./css/cliente-view.css">
+</head>
+<body>
+	<div class="user-status-bar">
+		<span class="status-label">Estado de Cuenta:</span>
+		<span id="userStatusBadge" class="badge badge-primary">
+	</div>
+	<div class="main-wrapper">
+		<aside class="sidebar">
+			<div class="sidebar-title">Portal Cliente</div>
+			<nav class="sidebar-menu">
+				<a href="#" class="active">Buscar Lugar</a>	
+				<a href="#mis-reservas" >Mis Reservas</a>
+				<a href="#">Mi Perfil</a>
+				<a href="#">Configuraciones</a>	
+				<a href="/index.html" class="logout-btn">Cerrar Sesion</a>
+			</nav>
+		</aside>
+
+		<main class="content-area">
+			<header class="content-header">
+				<h1>PANEL DE RESERVAS Y DISPONIBILIDAD</h1>
+				<p class="welcome-msg">Bienvenido, <span id="nombreusuarioCliente">Cliente</span></p>
+			</header>
+
+			<section class="card-container">
+			<h2 class="section-title">Buscar Espacio Disponible</h2>
+			<form id="formBuscardLugar" class="search-grid">
+				<div class="form-group">
+					<label for="fechaIngreso">Fecha y Hora de Ingreso</label>
+					<input type="datetime-local" id="fechaIngreso" required>
+				</div>
+				<div class="form-group">
+					<label for="fechaSalida">Fecha y Hora de Salida</label>
+					<input type="datetime-local" id="fechaSalida" required>
+				</div>
+				<div class="form-group">
+					<label for=tipoLugar">Tipo de Lugar</label>
+					<select id="tipoLugar">
+						<option value="Normal">Normal</option>
+						<option value="Discapacitado">Discapacitado</option>
+						<option value="Electrico">Estacion de carga electrica</option>
+					</select>
+				</div>
+				<div class="form-group btn-align">
+					<button type="submit" class="btn btn-buscar">BUSCAR DISPONIBILIDAD</button>
+				</div>
+			</form>
+			<div class="table-responsive" style="margin-top: 30px;">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>Estacionamiento</th>
+							<th>Direccion</th>
+							<th>Pisos Disponibles</th>
+							<th>Lugares libres</th>
+							<th>Accion</th>
+						</tr>
+					</thead>
+					<tbody id="listaEstacioamientosDisponibles">
+						<tr>
+							<td>Juan Parking</td
+							<td>Calle Falsa 123</td
+							<td>Piso 1</td
+							<td><span class="badge badge-success">5 lugares</span></td
+							<td><button class="btn btn-ver" onclick="solicitarReserva('juan Parking','Piso 1')">RESERVAR</button></td>
+						</tr>
+						<tr>
+							<td>Ana Parking</td>
+							<td>Maldonado 21</td>
+							<td>Piso1, Piso2</td>
+							<td><span class="badge badge-success">12 lugares</span></td>
+							<td><button class"btn btn-ver" onclick="solicitarreserva('Ana Parking', 'Piso 1')">RESERVA</button></td>
+						</tr>
+					<tbody>
+				</table>
+			</div>
+		</section>
+
+		<section id="mis-reservas" class="card-container" style="margin-top: 30px;">
+			<h2 class="section-title">Mis Reservas Activas e Historial</h2>
+			<div class="table-responsive">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>Lugar Asignado</th>
+							<th>Fecha Ingresado</th>
+							<th>Fecha Salida</th>
+							<th>Estado</th>
+							<th>Accion</th>
+						</tr>
+					<thead>
+						<tbody id="historialReservasCliente">
+							<tr>
+								<td>P1 - A12 (Normal)</td>
+								<td>15/05/2026 14:00</td>
+								<td>15/05/2026 18:00</td>
+								<td><span class="dabge dabge-primary">Activa</span></td>
+								<td><button class="btn btn-eliminar" onclick="cancelarReserva(123)">CANCELAR</button></td>
+							</tr>
+						</tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded",() => {
+		const usuarioLogueado = localStorage.getItem("usuario");
+		if (usuarioLogueado) {
+			document.getElementById("nombreUsuarioCliente").testContent = usuarioLogueado;
+		}
+	});
+
+	function solicitarReserva(parking, piso) {
+		alerta('Abriendo flujo de reserva para ${parking} en ${piso}...'};
+}
+	function cancelarReserva(idReserva) {
+		if(confirm("Seguro de cancelar reserva?")) {
+			alerta("Enviando peticion de cancelacion #${idReserva}');
+		}
+	}
+</script>
+</body>
+</html>

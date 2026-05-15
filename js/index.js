@@ -12,9 +12,16 @@ try {
 	});
 	const resJson = await respuesta.json();
 	if (respuesta.ok) {
+		localStorage.setItem("rol", resJson.rol);
+		localStorage.setItem("usuario",resJson.userName);
+
 		alert("bienvenido");
-		window.location.href = "admin_paking.html";
-		}else{
+		if (resJson.redirect){
+			window.location.href = resJson.redirect;
+		} else {
+			window.location.href = "admin_paking.html";
+			}
+		} else {
 			alert(resJson.message);
 		}
 } catch (error) {

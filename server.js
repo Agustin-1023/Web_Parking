@@ -11,8 +11,9 @@ import { metodos as validacion } from "./controladores/validacion.control.js";
 const app = express();
 app.use(cors());
 app.set("port", 9000);
-app.listen(app.get("port"));
-console.log("Servidor corriendo en el puerto",app.get("port"));
+app.listen(app.get("port"), ()=> {
+	console.log("Servidor corriendo en el puerto",app.get(`port`));
+});
 //config
 app.use(express.static(_dirname + "/"));
 app.use(express.json());
@@ -22,3 +23,4 @@ app.get("/",(req,res)=> res.sendFile(_dirname + "/index.html"))
 app.post("/register", (req,res)=> res.sendFile(_dirname + "/Registros.html"))
 app.post("/api/register", validacion.registro);
 app.post("/api/login", validacion.login);
+app.put("/api/actualizar-rol",validacion.actualizarRol);

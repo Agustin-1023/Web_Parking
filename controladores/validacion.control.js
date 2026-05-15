@@ -57,7 +57,9 @@ async function login(req, res) {
 	res.status(200).send({
 		status: "ok",
 		message: "Usuario logueado",
-		redirect: "/admin"
+		userName: usuarioBD.user_name,
+		rol: usuarioBD.rol,
+		redirect: usuarioBD.rol === 'pendiente' ? "/seleccion-rol.html" :"/admin"
 	})
 	}catch (error) {
 		console.error("Error en login:", error);
@@ -66,4 +68,35 @@ async function login(req, res) {
 			message: "Error interno del servidor" });
 	}
 }
-export const metodos = {login,	registro};
+async function actualizarRol (req,res) {
+		const { user_name, nuevoRol } = req.body;
+		
+		try {
+			//hace el update
+			const [result] = await pool.query(
+				'update Usuario set rol = ? where user_name = ?',
+				[nuevoRol, user_name]
+			);
+
+			if (result.affectedRows > 0) {
+				res.status(200).send({
+					status: "ok",
+					message: "Rol actualizado correctamente"
+				});
+			}else{
+				res.status(404).send({
+					status:"error",
+					message: "Usuario no encontrado"
+				});
+			}
+		} catch (error) {
+			console.error("Error en DB:", error);
+			res.status(500).send({
+				status: "error",
+				message: "Error interno del servidor"
+			});
+		}
+}
+export const metodos = {login,	registro, actualizarRol };
+
+

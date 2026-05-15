@@ -1,0 +1,16 @@
+:root {
+	--bg-dark-blue: #1a154b;
+	--bg-light-grey: #f4f6f9;
+	--text-muted: #6c757d;
+	--white: #ffffff;
+
+	--btn-blue: #0056b3;
+	--btn-orange: #f0a202;
+	--btn-red: #dc3545;
+	--btn-green: #28a745;
+}
+
+* {
+	* margin: 0;
+	* padding: 0;
+	* box-
