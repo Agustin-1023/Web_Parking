@@ -1,16 +1,231 @@
+/* Variables de paleta de colores extraídas de tu plantilla admin */
 :root {
-	--bg-dark-blue: #1a154b;
-	--bg-light-grey: #f4f6f9;
-	--text-muted: #6c757d;
-	--white: #ffffff;
-
-	--btn-blue: #0056b3;
-	--btn-orange: #f0a202;
-	--btn-red: #dc3545;
-	--btn-green: #28a745;
+    --bg-dark-blue: #1a154b;     /* Fondo del sidebar */
+    --bg-light-grey: #f4f6f9;    /* Fondo general de la app */
+    --text-muted: #6c757d;
+    --white: #ffffff;
+    
+    /* Colores exactos de tus botones */
+    --btn-blue: #0056b3;
+    --btn-orange: #f0a202;
+    --btn-red: #dc3545;
+    --btn-green: #28a745;
 }
 
 * {
-	* margin: 0;
-	* padding: 0;
-	* box-
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.user-status-bar {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    padding: 8px 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.status-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+body {
+    background-color: var(--bg-light-grey);
+    color: #333;
+}
+
+.main-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- SIDEBAR (Mismo comportamiento visual que tu Admin) --- */
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-dark-blue);
+    color: var(--white);
+    padding-top: 20px;
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    padding: 10px 25px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+}
+
+.sidebar-menu a {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    padding: 14px 25px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu a:hover, 
+.sidebar-menu a.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+    padding-left: 30px;
+}
+
+.sidebar-menu .logout-btn {
+    margin-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    color: #ff6b6b;
+}
+
+/* --- ÁREA DE CONTENIDO --- */
+.content-area {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.content-header h1 {
+    color: var(--bg-dark-blue);
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.welcome-msg {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.welcome-msg span {
+    font-weight: bold;
+    color: var(--bg-dark-blue);
+}
+
+/* --- TARJETAS CONTENEDORAS BLANCAS --- */
+.card-container {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.section-title {
+    font-size: 1.3rem;
+    color: var(--bg-dark-blue);
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--bg-light-grey);
+    padding-bottom: 10px;
+}
+
+/* --- FORMULARIO GRID DE BÚSQUEDA --- */
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.form-group input, 
+.form-group select {
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+    border-color: var(--btn-blue);
+}
+
+/* --- TABLAS (Estructura idéntica a tu captura) --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.data-table th {
+    background-color: var(--bg-light-grey);
+    color: #333;
+    font-weight: bold;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.data-table td {
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+/* --- BOTONES DE ACCIÓN --- */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    color: var(--white);
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-buscar { background-color: var(--btn-green); width: 100%; }
+.btn-ver { background-color: var(--btn-blue); }
+.btn-eliminar { background-color: var(--btn-red); }
+
+/* --- BADGES/ETIQUETAS --- */
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--btn-green);
+}
+
+.badge-primary {
+    background-color: rgba(0, 86, 179, 0.1);
+    color: var(--btn-blue);
+}

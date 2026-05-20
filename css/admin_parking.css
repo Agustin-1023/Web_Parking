@@ -182,3 +182,149 @@ body {
 [id^="button-"]:hover {
     transform: translateY(-3px); /* Efecto de elevación */
 }
+
+.btn-action {
+	padding: 5px 12px;
+	border: none;
+	border-radius: 4px;
+	font-size; 12px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease;
+	margin: 0 3px;
+}
+
+.btn-action.view {
+	background-color: #ebf3fe;
+	color: #1a73e8;
+}
+
+.btn-action.view:hover { background-color: #d2e3fc; }
+
+.btn-action.edit {
+	background-color: #fff4e5;
+	color: #b06000;
+}
+
+.btn-action.edut:hover { background-color: #ffe8cc; }
+
+.btn-action.delete {
+	background-color: #fce8e6;
+	color: #c5221f;
+}
+
+.btn-action.delete:hover { background-color: #fad2cf; }
+
+.reservations-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 15px;
+}
+
+.reservation-table th {
+	background-color: #f8f9fa;
+	border-collapse: collapse;
+	margin-top: 15px;
+}
+
+.reservation-table td {
+	padding: 12px;
+	border-bottom: 1px solid #00000010;
+	color: #3c4043;
+	vertical-align:middle;
+}
+
+.buttons-parkins button {
+	border:none;
+	border-radius: 6px;
+	padding: 12px 24px;
+	font-family: inherit;
+	font-size: 14px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	transition: filter 0.2s ease;
+}
+
+.buttons-parkins button:hover {
+	filter: brightness(0.9);
+}
+#form-container {
+	background #ffffff;
+	padding: 24px;
+	border-radius: 8px;
+	margin-bottom: 25px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+	border: 1px solid #e0e0e0;
+}
+
+#form-container h3 {
+	color: #1a1c4b;
+	margin-top: 0;
+	margin-bottom: 18px;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+#font-container > div {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+#form-container input[type="text"] {
+	padding:10px 14px;
+	border: 1px solid #cccccc;
+	border-radius: 6px;
+	font-size: 14px;
+	font-family: inherit;
+	color: #333333;
+	outline: none;
+	transition: border-color 0.2s, box-shadow 0.2s;
+	height: 42px;
+	box-sizing: border-box;
+}
+
+#form-container input[type="text"]:nth-of-type(1) {
+	flex: 1;
+	min-width: 200px;
+}
+
+#form-container input[type="text"]:nth-of-type(2) {
+	flex: 2;
+	min-width: 200px;
+}
+
+#form-container input[type="text"]:focus {
+	border-color: #5d5fef;
+	box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.15);
+}
+
+#form-container button {
+	height: 42px;
+	padding: 0 24px;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight:bold;
+	cursor: pointer;
+	transition: background-color 0.2s, transform 0.1s;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+#btn-guardar-parking {
+	background-color: #28a745;
+	color: white;
+}
+
+#btn-guardar-parking:hover { background-color: #218838; }
+
+#btn-cancelar-parking {
+	background-color: #dc3545;
+	color: white;
+}
+
+#btn-cancelar-parking:hover { background-color: #c82333; }
+
+#form-container button:active {
+	transform: scale(0.98);
+}

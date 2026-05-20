@@ -6,7 +6,6 @@ import {fileURLToPath} from 'url';
 const _dirname = path.dirname(fileURLToPath(import.meta.url));
 import { metodos as validacion } from "./controladores/validacion.control.js";
 
-
 //server
 const app = express();
 app.use(cors());
@@ -24,3 +23,10 @@ app.post("/register", (req,res)=> res.sendFile(_dirname + "/Registros.html"))
 app.post("/api/register", validacion.registro);
 app.post("/api/login", validacion.login);
 app.put("/api/actualizar-rol",validacion.actualizarRol);
+
+app.get("/api/estacionamientos",validacion.obtenerEstacionamientos);
+
+app.post("/api/estacionamientos",validacion.crearEstacionamiento);
+app.put("/api/estacionamientos/:id",validacion.modificarEstacionamiento);
+app.delete("/api/Estacionamientos/:id",validacion.eliminarEstacionamiento);
+

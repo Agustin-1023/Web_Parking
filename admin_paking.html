@@ -31,7 +31,17 @@
 
 	<div class="main-admin">
 	 	<h1>PANEL DE ESTACIONAMIENTOS</h1>
-			<section class="last-reservations">
+		<div id="form-container" style="display: none; background: #fff; padding: 20px; border-radius: 8 px; margin-bottom: 20px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+			<h3 style="color: #1a154b; margin-bottom: 15px;"> Nuevo Estacionamiento</h3>
+			<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+				<input type="text" id="nombreEst" placeholder="Nombre (ej: Centro Parking)" style="[adding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+				<input 	type="text" id="direccionEst" placeholder="Direccion (ej: 18 de julio 123)" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 2;">
+				<button id="btn-guardar-parking" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">GUARDAR</button>
+				<button id="btn-cancelar-parking" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">CANCELAR</button>
+			</div>
+		</div>
+
+	<section class="last-reservations">
 			    <h2>Listado Estacionamientos</h2>
 			    <table class="reservations-table">
 			        <thead>
@@ -43,26 +53,6 @@
 			            </tr>
 			        </thead>
 			        <tbody>
-			            <tr>
-			                <td>Juan Parking</td>
-			                <td>Calle Falta 123</td>
-			                <td>1</td>
-			                <td>
-								<button id="button-view-parkin" type="submit">VER</button>
-			                	<button id="button-edit-parkin" type="submit">MODIFICAR</button>
-								<button id="button-delete-parkin" type="submit">ELIMINAR</button>
-							</td>
-			            </tr>
-			            <tr>
-			                <td>Ana Parking</td>
-			                <td>Maldonado 21</td>
-			                <td>2</td>
-			                <td>
-								<button id="button-view-parkin" type="submit">VER</button>
-			                	<button id="button-edit-parkin" type="submit">MODIFICAR</button>
-								<button id="button-delete-parkin" type="submit">ELIMINAR</button>
-							</td>
-			            </tr>
 			        </tbody>
 			    </table>
 			</section>
@@ -73,4 +63,5 @@
 		</div>
 	</div>
 </body>
+	<script src="./js/admin_paking.js" > </script>
 </html>

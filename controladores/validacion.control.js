@@ -97,6 +97,86 @@ async function actualizarRol (req,res) {
 			});
 		}
 }
-export const metodos = {login,	registro, actualizarRol };
+//Listar estacionamientos
+
+const obtenerEstacionamientos = async (req,res) => {
+	try {
+		const query = `select e.estacionamiento_id, e.nombre, e.direccion, (select count(*) from Piso p where p.estacionamiento_id = e.estacionamiento_id) as cantidad_pisos from Estacionamiento e`		
+		const [rows] = await pool.query(query);
+		return res.json(rows);
+	} catch (error) {
+		console.error("Error en obtenerEstacionamientos: ", error);
+		return res.status(500).json({ mensaje: "Error inrno al leer los estacionamientos"});
+	}
+};
+// Creacion de estacionamientos
+
+const crearEstacionamiento = async (req,res) => {
+	const { nombre, direccion } = req.body;
+
+	if(!nombre || !direccion) {
+		return res.status(400).json({ mensaje: "Nombre y direccion son requeridos." });
+	}
+	try {
+		const query = "INSERT INTO Estacionamiento (nombre, direccion) VALUES (?, ?)";
+		await pool.query(query, [nombre, direccion]);
+		return res.status(201).json({mensaje: "Estacionamiento creado con exito"});
+	} catch (error) {
+		console.error("Error en crearEstacionamiento:",error);
+		return res.status(500).json({mensaje: "Error al insertar en la Base de datos" });
+	}
+};
+
+//Editar estaconamiento
+
+const modificarEstacionamiento = async (req,res) => {
+	const {id} = req.params;
+	const {nombre,direccion } = req.body;
+
+	if (!nombre || !direccion ) {
+		return res.status(400).json({ mensaje: " Campos incompletos."});
+	}
+
+	try {
+		const query = "Update Estacionamiento Set nombre = ?, direccion= ? where estacionamiento_id = ?";
+		const respuestaBD = await pool.query(query,[nombre,direccion,id]);
+
+		const result = respuestaBD[0] || respuestaBD;
+
+		if (!result || result.affectedRows ===0) {
+			return res.status(404).json({ mensaje: "Estacionamiento no encontrado" });
+		}
+
+		return res.json({ mensaje: "Estacionamiento actualizado con exito"});
+	} catch (error) {
+		console.error("Error en modificar Estacionamiento: ", error);
+		return res.status(500).json({ mensaje: "Error al actualizar la base de datos" });
+	}
+};
+
+//eliminar estacionamientos --temporal--
+
+const eliminarEstacionamiento = async (req,res) => {
+	const {id} = req.params;
+
+	try {
+		const query = "delete from Estacionamiento where estacionamiento_id =?";
+		const [result] = await pool.query(query, [id]);
+
+		if (result.affectedRows ===0) {
+			return res.status(400).json({ mensaje: "El estacionamiento ya no existe o no se encontro"});
+		}
+
+		return res.json({ mensaje: "Estacionamiento eliminado conrrectamente" });
+	} catch (error) {
+		console.error("Error en eliminar Estacionamiento: ", error);
+		return res.status(500).json({
+			mensaje: "No se puede eliminar. verifique que no tenga pisoso dependencias activas."
+		});
+	}
+};
+
+
+export const metodos = {login,	registro, actualizarRol, obtenerEstacionamientos, crearEstacionamiento, modificarEstacionamiento, eliminarEstacionamiento };
 
 
