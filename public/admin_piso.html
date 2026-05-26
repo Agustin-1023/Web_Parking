@@ -28,14 +28,20 @@
 	<div class="main-admin">
 		<h1>PANEL DE GESTION DE PISOS</h1>
 
-		<div id="form-container" style="display:none;">
+		<div id="form-container" class="form-card" style="display:none;">			
 			<h3 style="color: #1a154b; margin-bottom: 15px;"> Nuevo Piso</h3>
-			<div style="display: flex-wrap: wrap;">
-				<input type="number" id="numeroPiso" placeholder="Numero de piso" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
-				<input type="text" id="descripcionPiso" placeholder="Descripcion (ej: Piso 1)" style="padding: 10px;
-					     border: 1px solid #ccc; border-radius: 4px; flex: 2;">
-				<button id="btn-guardar-piso" class="btn-action">GUARDAR</button>
+			<div class="form-group">
 
+				<select id="select-estacionamiento" style="width: 100%">
+					<option value="">Selecciona un estacionamiento...</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<input type="number" id="numeroPiso" placeholder="Numero de piso">
+				<input type="text" id="descripcionPiso" placeholder="Descripcion (ej: Piso 1)">
+			</div>
+			<div class="form-group" style="justify-content: flex-end;">
+				<button id="btn-guardar-piso" class="btn-action">GUARDAR</button>
 				<button id="btn-cancelar-piso" class="btn-action">CANCELAR</button>
 			</div>
 		</div>
@@ -62,6 +68,7 @@
 		</div>
 	</div>
 
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="./js/admin_piso.js"></script>
 </body>
 </html>

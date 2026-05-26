@@ -8,7 +8,7 @@ routes.post('/api/adduser', (req,res)=> {
 	const { nombre, userName, Email, phone, password } = req.body;
 	console.log("Datos recibidos: ", nombre, Email, phone);
 if (!nombre || !Email || !password) {
-	return res.status(400).json({ error: "Fasltan cambpos obligatorios" })
+	return res.status(400).json({ error: "Fasltan campos obligatorios" })
 ;}
 
 const sql = "INSERT INTO Usuario (user_name, nombre_completo, email, telefono, password_hash) VALUES (?, ?, ?, ?, ?);"
