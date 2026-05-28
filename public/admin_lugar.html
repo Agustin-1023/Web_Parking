@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>ADMIN LUGARES</title>
+		<link rel="stylesheet" type="text/css" href="./css/admin_lugar.css">
+		<link rel="stylesheet" type="text/css" href="./css/admin_parking.css">
+	</head>
+	<body>
+		<aside class="sidebar">
+			<div class="sidebar-header"><h3>Administracion</h3></div>
+				<ul class="sidebar-menu">
+					<li><a href="#">Estadisticas</a></li>
+					<li><a href="#">Reservas</a></li>
+					<li><a href="#">Lugares</a></li>
+					<li><a href="admin_piso.html">Pisos</a></li>
+					<li><a href="#">Usuarios</a></li>
+					<li><a href="admin_estacionamiento.html">Estacionamiento</a></li>
+					<li><a href="#">Reportes</a></li>
+					<li><a href="#">Configuraciones</a></li>
+					<li><a href="#">Administradores</a></li>
+					<li><a href="#">Cerrar Sesion</a></li>
+				</ul>
+		</aside>
+		<div class="main-admin">
+			<h1> GESTION DE LUGARES</h1>
+
+				<div id="form-container" style="display: block; background: #fff; padding: 20px; border-radius: 8 px; margin-bottom:20px; border: 1 px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+			<h3 style="color: #1a154b; margin-bottom: 15px;">Nuevo Lugar</h3>
+
+			<div style="display: flex; gap: 15px; aligne-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+				<select id="select-piso" style="padding: 10px; border: 1 px solid #ccc; border-radius: 4px; flex:1;">
+					<option value="">Selecciona un piso...</option>
+				</select>
+				<select id="select-modo" onchange="toggleModo(this.value)" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+					<option value="manual">Modo Manual</option>
+					<option value="masivo">Generacion Masiva</option>
+				</select>
+			</div>
+			<div id="contenedor-manual" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+				<input type="text" id="codigo-lugar" placeholder="Codigo (ej: A-01)" style="padding: 10px; border: 1px solid #ccc;border-radius: 4px; flex: 2;">
+				<select id="tipo-lugar" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; height: 42px;">
+					<option value="Normal">Comun</option>
+					<option value="Discapacitados">Discapacitados</option>
+
+					<option value="Electrico">electrico</option>
+				</select>
+			</div>
+
+			<div id="contenedor-masivo" style="display: none; gap:15px; align-items:center; flex-wrap:wrap;">
+				<input type="text" id="prefijo" placeholder="prefijo (ej: A-)" style="padding:10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+				<input type="number" id="inicio" placeholder="Nro Inicio" style="padding:10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+				<input type="number" id="cantidad" placeholder="Cantidad" style="padding:10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+			</div>
+			<div style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+				<button id="btn=guardar-lugar" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">GUARDAR</button>
+			</div>
+		</div>
+
+		<section class="last-reservations">
+			<h2>Listado de Lugares</h2>
+			<table class="reservations-table">
+				<thead>
+					<tr>
+						<th>Piso</th>
+						<th>Codigo</th>
+						<th>Tipo</th>
+						<th>Estado</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="tbody-lugares">
+				</tbody>
+			</table>
+		</section>
+		</div>
+
+		<script>
+			function toggleModo(modo) {
+				document.getElementById('contenedor-manual').style.display=(modo ==='manual') ? 'flex' : 'none';
+				document.getElementById('contenedor-masivo').style.display=(modo ==='masivo') ? 'flex': 'none';
+			}
+		</script>
+	</body>
+</html>

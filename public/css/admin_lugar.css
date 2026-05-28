@@ -1,0 +1,9 @@
+#select-piso,#select-modo, #contenedor-manual input, #contenedor-masivo input {
+	box-sizing: border-box;
+	height:42px;
+}
+
+.reservations-table {
+	margin-top: 20px;
+}
+
