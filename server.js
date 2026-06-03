@@ -2,16 +2,29 @@ import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 // necesario para _dirname
+import session from 'express-session';
+
 import path from 'path';
 import {fileURLToPath} from 'url';
 const _dirname = path.dirname(fileURLToPath(import.meta.url));
 import { metodos as validacion } from "./controladores/validacion.control.js";
 import pisoRoutes from './routes/piso.routes.js'; 
+import lugaresRoutes from './routes/lugares.routes.js';
 //server
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
+app.use(session({
+	secret: 'labiastin',
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		secure: false,
+		maxAge: 1000 * 60 * 60 * 24
+	}
+}));
+
 app.set("port", 9000);
 app.listen(app.get("port"), ()=> {
 	console.log("Servidor corriendo en el puerto",app.get(`port`));
@@ -19,6 +32,13 @@ app.listen(app.get("port"), ()=> {
 //config
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api',lugaresRoutes);
+app.get("/admin", (req,res) => {
+	if (!req.session.usuario_id) {
+		return res.redirect("/");
+	}
+	res.sendFile(path.join(__dirname, 'public', 'admin_paking.html'));
+});
 //rutas
 app.get("/",(req,res)=> res.sendFile(_dirname + "/index.html"))
 app.post("/register", (req,res)=> res.sendFile(_dirname + "/Registros.html"))
