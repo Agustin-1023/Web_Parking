@@ -14,6 +14,9 @@ import lugaresRoutes from './routes/lugares.routes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+//MIDDLEWARES
+
+app.use(express.json());
 app.use(cors());
 app.use(session({
 	secret: 'labiastin',
@@ -24,6 +27,8 @@ app.use(session({
 		maxAge: 1000 * 60 * 60 * 24
 	}
 }));
+//archivos estaticos
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.set("port", 9000);
 app.listen(app.get("port"), ()=> {
@@ -32,6 +37,7 @@ app.listen(app.get("port"), ()=> {
 //config
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api/pisos', pisoRoutes);
 app.use('/api',lugaresRoutes);
 app.get("/admin", (req,res) => {
 	if (!req.session.usuario_id) {
@@ -51,4 +57,3 @@ app.get("/api/estacionamientos",validacion.obtenerEstacionamientos);
 app.post("/api/estacionamientos",validacion.crearEstacionamiento);
 app.put("/api/estacionamientos/:id",validacion.modificarEstacionamiento);
 app.delete("/api/Estacionamientos/:id",validacion.eliminarEstacionamiento);
-app.use('/api/pisos', pisoRoutes);

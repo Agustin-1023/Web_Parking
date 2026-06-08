@@ -7,22 +7,31 @@ const Toast = Swal.mixin({
 });
 
 document.addEventListener('DOMContentLoaded',() => {
-	cargarPisos();
+	const selectEstacionamiento = document.getElementById('select-estacionamiento');
+	const tbody = document.getElementById('tbody-pisos');
+	const formContainer = document.getElementById('form-container');
+
 	async function cargarEstacionamientos() {
 		try {
 			const res = await fetch('/api/estacionamientos');
 			const estacionamientos = await res.json(); 
-			const select = document.getElementById('select-estacionamiento');
-
-			select.innerHTML = '<option value="">Selecciona un estacionamiento...</option>';
+			selectEstacionamiento.innerHTML = '<option value="">Selecciona un estacionamiento...</option>';
 			estacionamientos.forEach(est => {
-				select.innerHTML += `<option value="${est.estacionamiento_id}">${est.nombre}</option>`;
+				selectEstacionamiento.innerHTML += `<option value="${est.estacionamiento_id}">${est.nombre}</option>`;
 			});
 		} catch (err) {
 			console.error("Error cargando estacionamientos:", err);
 		}
 	}
-	cargarEstacionamientos();
+	selectEstacionamiento.addEventListener('change', (e) => {
+		const id = e.target.value;
+		if(id) {
+			cargarPisos(id);
+		} else {
+			tbody.innerHTML = '';
+		}
+	});
+		
 	document.getElementById('button-create-bottom').addEventListener('click', () => {
 		document.getElementById('form-container').style.display = 'block';
 	});
@@ -31,24 +40,29 @@ document.addEventListener('DOMContentLoaded',() => {
 	});
 
 	document.getElementById('btn-guardar-piso').addEventListener('click', guardarPiso);
+	cargarEstacionamientos();
 });
+async function cargarPisos(idEstacionamiento = null) {
+	const tbody = document.getElementById ('tbody-pisos');
 
-async function cargarPisos() {
+	if (!idEstacionamiento) return;
 	try {
-		const res = await fetch('/api/pisos');
+		const res = await fetch(`/api/pisos?estacionamiento_id=${idEstacionamiento}`);
 		const pisos = await res.json();
-		const tbody = document.getElementById('tbody-pisos');
-		
-		tbody.innerHTML =pisos.map(piso => `
-			<tr>
-				<td>${piso.numero_piso}</td>
-				<td>${piso.descripcion}</td>
-				<td>
-					<button class="btn-action delete" onclick="eliminarPiso(${piso.piso_id})">ELIMINAR</button>
-				</td>
-			</tr>
-		`).join('');
-	} catch (err) {
+		if (Array.isArray(pisos)) {
+			tbody.innerHTML = pisos.map(piso => `
+				<tr>
+					<td>${piso.numero_piso}</td>
+					<td>${piso.descripcion}</td>
+					<td>
+						<button class="btn-action delete" onclick="eliminarPiso(${piso.piso_id})">ELIMINAR</button>
+					</td>
+				</tr>
+			`).join('');
+		} else {
+			tbody.innerHTML = `<tr><td colspan="3"> No se encontraron pisos para este estacionamiento.</td></tr>`;
+		}
+	}catch (err) {
 		console.error("Error cargando Pisos:", err );
 	}
 }
@@ -88,11 +102,13 @@ async function guardarPiso() {
 
         if (res.ok) {
             Toast.fire({ icon: 'success', title: 'Piso creado correctamente' });
+	    const idActual = document.getElementById('select-estacionamiento').value;
+	    cargarPisos(idActual);
             document.getElementById('form-container').style.display = 'none';
             inputNum.value = '';
             inputDesc.value = '';
             select.selectedIndex = 0;
-            cargarPisos(); 
+            cargarPisos(valorSeleccionado); 
         } else {
             const errorData = await res.json();
             Swal.fire('Error', errorData.message || 'No se pudo guardar el piso', 'error');
@@ -117,7 +133,8 @@ async function eliminarPiso(id) {
 
 	if (result.isConfirmed) {
 		await fetch(`/api/pisos/delete/${id}`, { method: 'PUT' });
-		cargarPisos();
+		const idActual = document.getElementById('select-estacionamiento').value;
+		cargarPisos(idActual);
 		Toast.fire({icon: 'success', title: 'Piso dado de baja' });
 	}
 }
