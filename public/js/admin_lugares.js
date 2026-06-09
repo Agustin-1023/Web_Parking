@@ -1,27 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
 	cargarEstacionamientos();
-	cargarPisos();
-	cargarLugares();
-	document.getElementById('select-estacionamiento').addEventListener('change',cargarPisos);
+	document.getElementById('select-estacionamiento').addEventListener('change', () => {
+		cargarPisos();
+		cargarLugares();
+	});
 	document.getElementById('btn-guardar-lugar').addEventListener('click', guardarLugar);
 });
 async function cargarEstacionamientos() {
 	try {
 		const response = await fetch('/api/estacionamientos');
 		const ests = await response.json();
+		if (!Array.isArray(ests)) return console.error("Error en datos de estacionamientos: " , ests);
+
 		const select = document.getElementById('select-estacionamiento');
 
 		select.innerHTML = '<option value="">Seleccione un estacionamiento...</option>';
 		ests.forEach(est => {
 			const option = document.createElement('option');
 			option.value = est.estacionamiento_id;
-			option.textContent = est.nombre_estacionamiento;
+			option.textContent = est.nombre;
 			select.appendChild(option);
 		});
 	} catch (error) {
 		console.error("Error cargando estacionamientos:", error);
 	}
-]
+}
 async function cargarPisos() {
 	const estacionamiento_id = document.getElementById('select-estacionamiento').value;
 	const selectPiso = document.getElementById('select-piso');
@@ -29,8 +32,10 @@ async function cargarPisos() {
 	if (!estacionamiento_id) return;
 
 	try {
-		const response = await fetch(`/api/pisos?estacionamiento_id=${ESTACIONAMIENTO_ID}`);
+		const response = await fetch(`/api/pisos?estacionamiento_id=${estacionamiento_id}`);
 		const pisos = await response.json();
+
+		if (!Array.isArray(pisos)) return console.error("Error en datos de pisos:",pisos);
 
 		pisos.forEach(piso => {
 			const option = document.createElement('option');
@@ -44,9 +49,23 @@ async function cargarPisos() {
 }
 
 async function cargarLugares() {
+	const estacionamiento_id = document.getElementById('select-estacionamiento').value;
+	if (!estacionamiento_id) {
+		document.getElementById('tbody-lugares').innerHTML = '';
+		return;
+	}
 	try {
-		const response = await fetch('/api/lugares');
+		const response = await fetch(`/api/lugares?estacionamiento_id=${estacionamiento_id}`);
+		if (!response.ok) {
+			const errorData = await response.json();
+			console.error("error del servidor:", errorData.message);
+			return;
+		}
+
 		const lugares = await response.json();
+
+		if (!Array.isArray(lugares)) return console.error("Error en datos de lugares:", lugares);
+
 		const tbody = document.getElementById('tbody-lugares');
 		tbody.innerHTML = '';
 
@@ -74,6 +93,7 @@ async function guardarLugar() {
 	if (!piso_id) return alert("selecciona un piso primero");
 
 	if (modo === 'manual') {
+		const data = {
 		piso_id: piso_id,
 		codigo_lugar: document.getElementById('codigo-lugar').value,
 		tipo_lugar: document.getElementById('tipo-lugar').value,
@@ -89,8 +109,8 @@ async function guardarLugar() {
 		tipo_lugar: 'Normal'
 	};
 	enviarDatos('/api/lugares/masivo', 'POST', data);
+	}
 }
-
 async function enviarDatos(url, method, body) {
 
 	const Toast = Swal.mixin({
@@ -116,7 +136,7 @@ async function enviarDatos(url, method, body) {
 				icon:'success',
 				title:'Operacion realizada con exito'
 			});
-			carganrLugares();
+			cargarLugares();
 		} else {
 			Toast.fire({
 				icon: 'error',
@@ -131,3 +151,4 @@ async function enviarDatos(url, method, body) {
 		});
 	}
 }
+
