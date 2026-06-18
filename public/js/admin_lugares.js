@@ -116,11 +116,14 @@ async function guardarLugarIndividual() {
 }
 
 async function guardarLugarMasivo() {
+	const tipoLugarSeleccionado = document.getElementById('tipo-lugar-masivo').value;
+
     const data = {
         piso_id: document.getElementById('select-piso').value,
         prefijo: document.getElementById('prefijo').value,
         inicio: parseInt(document.getElementById('inicio').value),
-        cantidad: parseInt(document.getElementById('cantidad').value)
+        cantidad: parseInt(document.getElementById('cantidad').value),
+   	tipo_lugar: tipoLugarSeleccionado
     };
 
     try {

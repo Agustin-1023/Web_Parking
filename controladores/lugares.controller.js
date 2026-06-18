@@ -50,7 +50,7 @@ export const crearLugar = async (req,res) => {
 	}
 };
 
-export const generarLugaresMasivamente = async (req,res) => {
+export const generarLugarMasivo = async (req,res) => {
 	const usuario_id = req.session.usuario_id;
 	const { piso_id, prefijo, inicio,cantidad,tipo_lugar } = req.body;
 
