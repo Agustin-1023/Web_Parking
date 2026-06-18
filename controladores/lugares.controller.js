@@ -1,28 +1,30 @@
 import pool from '../db.js';
 
 export const getLugares = async (req, res) => {
+    const usuario_id = req.session.usuario_id;
+    // Cambiamos a esperar piso_id
+    const { piso_id } = req.query;
 
-	const usuario_id = req.session.usuario_id;
-	const { estacionamiento_id } = req.query;
-	if (!usuario_id) return res.status(401).json({ message: " No autorizado"});
-	if (!estacionamiento_id) {
-		return res.status(400).json({ message: "ID de estacionamiento requerido" });
-	}
+    if (!usuario_id) return res.status(401).json({ message: "No autorizado" });
+    
+    if (!piso_id) {
+        return res.status(400).json({ message: "ID de Piso requerido" });
+    }
 
-	try {
-		const [rows] = await pool.query(`
-			Select L.* from Lugar L
-			inner join Piso P on L.piso_id = P.piso_id
-			inner join Estacionamiento E on P.estacionamiento_id = E.estacionamiento_id
-			where E.usuario_id = ? and P.estacionamiento_id =?`, 
-			[usuario_id, estacionamiento_id]
-		);
-		res.json(rows);
-	} catch (error) {
-		res.status(500).json({ message: "Error al obtener lugares", error: error.message});
-	}
+    try {
+        // Query corregida: Filtra por usuario_id y piso_id para mayor seguridad
+        const [rows] = await pool.query(`
+            SELECT L.* FROM Lugar L
+            INNER JOIN Piso P ON L.piso_id = P.piso_id
+            INNER JOIN Estacionamiento E ON P.estacionamiento_id = E.estacionamiento_id
+            WHERE E.usuario_id = ? AND L.piso_id = ? AND L.activo = 1`, 
+            [usuario_id, piso_id]
+        );
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener lugares", error: error.message });
+    }
 };
-
 export const crearLugar = async (req,res) => {
 
 	const usuario_id = req.session.usuario_id;	
@@ -30,7 +32,7 @@ export const crearLugar = async (req,res) => {
 	try{ 
 		const { piso_id, codigo_lugar, tipo_lugar, estado } = req.body;
 
-		if (!piso_id || !codigo_lugar) {
+		if (!piso_id || !codigo_lugar || !tipo_lugar) {
 			return res.status(400).json({ message: "Datos incompletos" });
 		}
 
@@ -41,6 +43,9 @@ export const crearLugar = async (req,res) => {
 
 		res.status(201).json({ message: " Lugar creado exitosamente" });
 	} catch (error) {
+		if (error.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD') {
+			return res.status(400).json({ message: "El tipo de lugar seleccionado no es valido." });
+		}
 		res.status(500).json({ message: "Error al crear lugar", error: error.message});
 	}
 };
@@ -96,5 +101,28 @@ export const getPisos = async (req,res) => {
 		res.json(rows);
 	} catch (error) {
 		res.status(500).json({ message: "Error al cargar pisos", error: error.message });
+	}
+};
+
+export const deletesoft = async (req,res) => {
+	const usuario_id = req.session.usuario_id;
+	const { id } = req.params;
+
+	if (!usuario_id) return res.status(401).json({ message: "No autorizado" });
+
+	try {
+		const [result] = await pool.query(
+			'update Lugar set activo = 0 where lugar_id=?',
+			[id]
+		);
+
+		if (result.affectedRows === 0) {
+			return res.status(404).json({ message: "Lugar no encontrado" });
+		}
+
+		res.status(200).json({ message: "Lugar eliminado correctamente"});
+	} catch (error) {
+		console.error("Error en deletesoft:",error);
+		res.status(500).json({ message: "error interno", error: error.message });
 	}
 };
