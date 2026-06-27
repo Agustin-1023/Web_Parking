@@ -126,3 +126,33 @@ export const deletesoft = async (req,res) => {
 		res.status(500).json({ message: "error interno", error: error.message });
 	}
 };
+
+export const actualizarLugar = async (req,res) => {
+	const { id } = req.params;
+	const { codigo_lugar, tipo_lugar } = req.body;
+	try { 
+		await pool.query(
+			`update Lugar set codigo_lugar = ?, tipo_lugar = ? where lugar_id = ?`,
+			[codigo_lugar, tipo_lugar, id]
+		);
+		res.json({ message: " Lugar Actualizado correctamente" });
+	} catch (error) {
+		res.status(500).json({ message: "error al actualizar", error: error.message});
+	}
+};
+
+export const getLugarById = async (req,res) => {
+	try {
+		const { id } = req.params;
+		const [rows] = await pool.query('select * from Lugar where lugar_id = ?', [id]);
+
+		if (rows.length > 0) {
+			res.json(rows[0]);
+		} else {
+			res.status(404).json({ message: "lugar no encontrado" });
+			}
+		} catch (error) {
+			console.error("error al obtener lugar por ID:", error);
+			res.status(500).json({ error: error.message })
+		}
+	};

@@ -1,28 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
     cargarEstacionamientos();
-
-    // Eventos de cambios en selects
+    const tbody = document.getElementById('tbody-lugares');
+    if (tbody) {
+        tbody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-editar')) {
+                const id = e.target.getAttribute('data-id');
+                editarLugar(id);
+            }
+            if (e.target.classList.contains('btn-eliminar')) {
+                const id = e.target.getAttribute('data-id');
+                deletesoft(id);
+            }
+        });
+    }
     document.getElementById('select-estacionamiento').addEventListener('change', (e) => {
         cargarPisos(e.target.value);
     });
-
     document.getElementById('select-piso').addEventListener('change', () => {
         cargarLugares();
     });
-
-    // Delegación de eventos para botones de la tabla (Eliminar)
-    document.getElementById('tbody-lugares').addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-eliminar')) {
-            deletesoft(e.target.getAttribute('data-id'));
-        }
-    });
-
-    // Evento del botón Guardar
     document.getElementById('btn-guardar-lugar').addEventListener('click', manejarGuardado);
 });
-
-// --- FUNCIONES DE CARGA ---
-
 async function cargarEstacionamientos() {
     try {
         const response = await fetch('/api/estacionamientos');
@@ -36,7 +34,6 @@ async function cargarEstacionamientos() {
         console.error("Error al cargar estacionamientos", error);
     }
 }
-
 async function cargarPisos(estacionamientoId) {
     if (!estacionamientoId) return;
     try {
@@ -51,19 +48,15 @@ async function cargarPisos(estacionamientoId) {
         console.error("Error al cargar pisos", error);
     }
 }
-
 async function cargarLugares() {
     const pisoId = document.getElementById('select-piso').value;
     if (!pisoId) return;
-
     try {
         const response = await fetch(`/api/lugares?piso_id=${pisoId}`);
         if (!response.ok) throw new Error('Error al obtener lugares');
-        
         const lugares = await response.json();
         const tbody = document.getElementById('tbody-lugares');
         tbody.innerHTML = '';
-
         lugares.forEach(lugar => {
             const fila = document.createElement('tr');
             fila.innerHTML = `
@@ -71,7 +64,10 @@ async function cargarLugares() {
                 <td>${lugar.codigo_lugar}</td>
                 <td>${lugar.tipo_lugar}</td>
                 <td>${lugar.estado == 1 ? 'Activo' : 'Inactivo'}</td>
-                <td><button class="btn-eliminar" data-id="${lugar.lugar_id}" style="color: red; cursor: pointer;">Eliminar</button></td>
+                <td class="acciones">
+                    <button class="btn btn-editar" data-id="${lugar.lugar_id}">Editar</button>
+                    <button class="btn btn-eliminar" data-id="${lugar.lugar_id}">Eliminar</button>
+                </td>
             `;
             tbody.appendChild(fila);
         });
@@ -79,27 +75,40 @@ async function cargarLugares() {
         console.error("Error al cargar lugares:", error);
     }
 }
-
-// --- LÓGICA DE GUARDADO (Individual vs Masivo) ---
-
+async function deletesoft(id) {
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar'
+    });
+    if (result.isConfirmed) {
+        try {
+            const response = await fetch(`/api/lugar/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                Swal.fire('Eliminado', '', 'success');
+                cargarLugares();
+            }
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    }
+}
 function manejarGuardado() {
     const contenedorMasivo = document.getElementById('contenedor-masivo');
-    // Si el contenedor masivo está visible (display block/flex), guarda masivo
     if (contenedorMasivo && contenedorMasivo.style.display !== 'none') {
         guardarLugarMasivo();
     } else {
         guardarLugarIndividual();
     }
 }
-
 async function guardarLugarIndividual() {
     const data = {
         piso_id: document.getElementById('select-piso').value,
-        codigo_lugar: document.getElementById('codigo-lugar').value, // Asegúrate de tener este ID en HTML
-        tipo_lugar: document.getElementById('tipo-lugar').value,     // Asegúrate de tener este ID en HTML
+        codigo_lugar: document.getElementById('codigo-lugar').value,
+        tipo_lugar: document.getElementById('tipo-lugar').value,    
         estado: 1
     };
-
     try {
         const response = await fetch('/api/lugar', {
             method: 'POST',
@@ -114,18 +123,15 @@ async function guardarLugarIndividual() {
         console.error("Error:", error);
     }
 }
-
 async function guardarLugarMasivo() {
-	const tipoLugarSeleccionado = document.getElementById('tipo-lugar-masivo').value;
-
+    const tipoLugarSeleccionado = document.getElementById('tipo-lugar-masivo').value;
     const data = {
         piso_id: document.getElementById('select-piso').value,
         prefijo: document.getElementById('prefijo').value,
         inicio: parseInt(document.getElementById('inicio').value),
         cantidad: parseInt(document.getElementById('cantidad').value),
-   	tipo_lugar: tipoLugarSeleccionado
+    tipo_lugar: tipoLugarSeleccionado
     };
-
     try {
         const response = await fetch('/api/lugares/masivo', {
             method: 'POST',
@@ -133,7 +139,6 @@ async function guardarLugarMasivo() {
             body: JSON.stringify(data)
         });
         const result = await response.json();
-        
         if (response.ok) {
             Swal.fire('¡Éxito!', 'Inserción masiva completada', 'success');
             cargarLugares();
@@ -144,26 +149,49 @@ async function guardarLugarMasivo() {
         console.error("Error masivo:", error);
     }
 }
-
-// --- ELIMINACIÓN ---
-
-async function deletesoft(id) {
-    const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar'
-    });
-
-    if (result.isConfirmed) {
-        try {
-            const response = await fetch(`/api/lugar/${id}`, { method: 'DELETE' });
-            if (response.ok) {
-                Swal.fire('Eliminado', '', 'success');
-                cargarLugares();
-            }
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-        }
-    }
+async function editarLugar(id) {
+	try {
+		const response = await fetch(`/api/lugar/${id}`);
+		const lugar = await response.json();
+		const { value: formValues } = await Swal.fire({
+			title: 'Editar Lugar',
+			html:`
+				<label>Codigo del lugar:</label>
+				<input id="swal-codigo" class="swal2-input" value="${lugar.codigo_lugar}">
+				<label>Tipo de lugar: </label>
+				<input id="swal-tipo" class="swal2-input" value="${lugar.tipo_lugar}">
+				`,
+			focusConfirm: false,
+			preConfirm: () => {
+				return {
+					codigo_lugar: document.getElementById('swal-codigo').value,
+					tipo_lugar: document.getElementById('swal-tipo').value
+				}
+			}
+		});
+		if (formValues) {
+			const updateResponse = await fetch(`/api/lugar/${id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(formValues)
+			});
+			if (updateResponse.ok) {
+				Swal.fire('Exitoso, lugar actualizado','success');
+				cargarLugares();
+			} else {
+				Swal.fire('Error','no se pudo actualizar','error');
+			}
+		}
+	} catch (error) {
+		console.error("error al editar",error);
+		Swal.fire('Error','algo salio mal en los datos','error');
+	}
 }
+	
+
+
+
+
+
+
+
