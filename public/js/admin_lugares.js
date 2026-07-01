@@ -3,24 +3,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.getElementById('tbody-lugares');
     if (tbody) {
         tbody.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-editar')) {
-                const id = e.target.getAttribute('data-id');
-                editarLugar(id);
-            }
-            if (e.target.classList.contains('btn-eliminar')) {
-                const id = e.target.getAttribute('data-id');
-                deletesoft(id);
-            }
+            const fila = e.target.closest('tr');
+            const id = e.target.getAttribute('data-id');
+
+            if (e.target.classList.contains('btn-editar')) activarEdicion(fila, id);
+            if (e.target.classList.contains('btn-eliminar')) deletesoft(id);
+            if (e.target.classList.contains('btn-guardar')) guardarEdicion(fila, id);
+            if (e.target.classList.contains('btn-cancelar')) cargarLugares();
         });
     }
-    document.getElementById('select-estacionamiento').addEventListener('change', (e) => {
-        cargarPisos(e.target.value);
-    });
-    document.getElementById('select-piso').addEventListener('change', () => {
-        cargarLugares();
-    });
+    document.getElementById('select-estacionamiento').addEventListener('change', (e) => cargarPisos(e.target.value));
+    document.getElementById('select-piso').addEventListener('change', () => cargarLugares());
     document.getElementById('btn-guardar-lugar').addEventListener('click', manejarGuardado);
 });
+
 async function cargarEstacionamientos() {
     try {
         const response = await fetch('/api/estacionamientos');
@@ -34,6 +30,7 @@ async function cargarEstacionamientos() {
         console.error("Error al cargar estacionamientos", error);
     }
 }
+
 async function cargarPisos(estacionamientoId) {
     if (!estacionamientoId) return;
     try {
@@ -48,6 +45,7 @@ async function cargarPisos(estacionamientoId) {
         console.error("Error al cargar pisos", error);
     }
 }
+
 async function cargarLugares() {
     const pisoId = document.getElementById('select-piso').value;
     if (!pisoId) return;
@@ -75,25 +73,70 @@ async function cargarLugares() {
         console.error("Error al cargar lugares:", error);
     }
 }
+function activarEdicion(fila,id) {
+    const celdas = fila.children;
+    const codigoActual = celdas[1].innerText;
+    const tipoActual = celdas[2].innerText;
+    const estiloInput = "padding: 6px; border: 1px solid #ced4da; border-radius: 4px; width: 100%; box-sizing: border-box;";
+    celdas[1].innerHTML = `<input type="text" id="edit-codigo" value="${codigoActual}" class="form-control" style="${estiloInput}">`;
+    celdas[2].innerHTML = `
+        <select id="edit-tipo" class="form-control" style="${estiloInput}">
+            <option value="Normal" ${tipoActual === 'Normal' ? 'selected' : ''}>Normal</option>
+            <option value="Discapacitados" ${tipoActual === 'Discapacitadors' ? 'selected' : ''}>Discapacitados</option>
+            <option value="Electrico" ${tipoActual === 'Electrico' ? 'selected' : ''}>Electrico</option>
+        </select>`;
+    celdas[4].innerHTML = `
+        <button class="btn btn-success btn-guardar" data-id="${id}" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar</button>
+        <button class="btn btn-secondary btn-cancelar" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Cancelar</button>
+    `;
+}
+
+async function guardarEdicion(fila, id){
+    const data = {
+        codigo_lugar: document.getElementById('edit-codigo').value,
+        tipo_lugar: document.getElementById('edit-tipo').value
+    };
+    try {
+        const response = await fetch(`/api/lugar/${id}`,{
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        if (response.ok) {
+            Swal.fire('Exito', 'Lugar actualizado', 'success');
+            cargarLugares();
+        } else {
+            Swal.fire('Error', 'No se pudo actualizar','oerror');
+        }
+    } catch (error) {
+        Swal.fire('Error','hubo un problema con la conexion','error');
+    }
+}
 async function deletesoft(id) {
     const result = await Swal.fire({
         title: '¿Estás seguro?',
+        text: "Este lugar quedará como 'Inactivo'",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar'
+        confirmButtonText: 'Sí, desactivar'
     });
     if (result.isConfirmed) {
         try {
-            const response = await fetch(`/api/lugar/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/lugar/${id}`, { 
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'soft-delete' })
+            });
             if (response.ok) {
-                Swal.fire('Eliminado', '', 'success');
+                Swal.fire('Desactivado', 'El lugar ha sido marcado como inactivo', 'success');
                 cargarLugares();
             }
         } catch (error) {
-            console.error("Error al eliminar:", error);
+            console.error("Error al desactivar:", error);
         }
     }
 }
+
 function manejarGuardado() {
     const contenedorMasivo = document.getElementById('contenedor-masivo');
     if (contenedorMasivo && contenedorMasivo.style.display !== 'none') {
@@ -102,6 +145,7 @@ function manejarGuardado() {
         guardarLugarIndividual();
     }
 }
+
 async function guardarLugarIndividual() {
     const data = {
         piso_id: document.getElementById('select-piso').value,
@@ -123,6 +167,7 @@ async function guardarLugarIndividual() {
         console.error("Error:", error);
     }
 }
+
 async function guardarLugarMasivo() {
     const tipoLugarSeleccionado = document.getElementById('tipo-lugar-masivo').value;
     const data = {
@@ -130,7 +175,7 @@ async function guardarLugarMasivo() {
         prefijo: document.getElementById('prefijo').value,
         inicio: parseInt(document.getElementById('inicio').value),
         cantidad: parseInt(document.getElementById('cantidad').value),
-    tipo_lugar: tipoLugarSeleccionado
+        tipo_lugar: tipoLugarSeleccionado
     };
     try {
         const response = await fetch('/api/lugares/masivo', {
@@ -149,49 +194,56 @@ async function guardarLugarMasivo() {
         console.error("Error masivo:", error);
     }
 }
+
 async function editarLugar(id) {
-	try {
-		const response = await fetch(`/api/lugar/${id}`);
-		const lugar = await response.json();
-		const { value: formValues } = await Swal.fire({
-			title: 'Editar Lugar',
-			html:`
-				<label>Codigo del lugar:</label>
-				<input id="swal-codigo" class="swal2-input" value="${lugar.codigo_lugar}">
-				<label>Tipo de lugar: </label>
-				<input id="swal-tipo" class="swal2-input" value="${lugar.tipo_lugar}">
-				`,
-			focusConfirm: false,
-			preConfirm: () => {
-				return {
-					codigo_lugar: document.getElementById('swal-codigo').value,
-					tipo_lugar: document.getElementById('swal-tipo').value
-				}
-			}
-		});
-		if (formValues) {
-			const updateResponse = await fetch(`/api/lugar/${id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(formValues)
-			});
-			if (updateResponse.ok) {
-				Swal.fire('Exitoso, lugar actualizado','success');
-				cargarLugares();
-			} else {
-				Swal.fire('Error','no se pudo actualizar','error');
-			}
-		}
-	} catch (error) {
-		console.error("error al editar",error);
-		Swal.fire('Error','algo salio mal en los datos','error');
-	}
+    try {
+        const response = await fetch(`/api/lugar/${id}`);
+        const lugar = await response.json();
+
+        const tipos = ['Normal', 'Discapacitados', 'Electrico'];
+
+        const opciones = tipos.map(t =>
+            `<option value="${t}" ${lugar.tipo_lugar === t ? 'selected' : ''}>${t}</option>`
+        ).join('');
+
+        const { value: formValues } = await Swal.fire({
+            title: 'Editar Lugar',
+            html:`
+                <div style="text-align: left;">
+                    <label style="font-weight: bold;">Codigo del lugar:</label>
+                    <input id="swal-codigo" class="swal2-input" style="padding: 10px; border: 1px solid #ccc;border-radius: 4px; flex: 2;" value="${lugar.codigo_lugar}">
+                    <label style="font-weight: bold;"> Tipo de lugar:</label>
+                    <select id="swal-tipo" class="swal2-select" style="display: block; width: 100%; margin-top: 5px;">
+                ${opciones}
+                    </select>
+                </div>
+                `,
+            focusConfirm: false,
+            confirmButtonText: 'Guardar cambios',
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                return {
+                    codigo_lugar: document.getElementById('swal-codigo').value,
+                    tipo_lugar: document.getElementById('swal-tipo').value
+                }
+            }
+        });
+        if (formValues) {
+            const updateResponse = await fetch(`/api/lugar/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify(formValues)
+            });
+            if (updateResponse.ok) {
+                Swal.fire('Aceptado', 'Lugar actualizado correctamente.', 'success');
+                cargarLugares();
+            } else {
+                Swal.fire('Error', 'No se pudo actualizar', 'error');
+            }
+        }
+    } catch (error) {
+        console.error("Error al editar:", error);
+        Swal.fire('Error', 'algo salio mal', 'error');
+    }
 }
-	
-
-
-
-
-
-
-
