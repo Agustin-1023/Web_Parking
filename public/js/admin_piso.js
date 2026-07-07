@@ -9,76 +9,117 @@ const Toast = Swal.mixin({
 document.addEventListener('DOMContentLoaded',() => {
 	const selectEstacionamiento = document.getElementById('select-estacionamiento');
 	const tbody = document.getElementById('tbody-pisos');
+	const btnCreate = document.getElementById('button-create-bottom');
+	const btnCancelar = document.getElementById('btn-cancelar-piso');
+	const btnGuardar = document.getElementById('btn-guardar-piso');
 	const formContainer = document.getElementById('form-container');
 
-	async function cargarEstacionamientos() {
-		try {
-			const res = await fetch('/api/estacionamientos');
-			const estacionamientos = await res.json(); 
-			selectEstacionamiento.innerHTML = '<option value="">Selecciona un estacionamiento...</option>';
-			estacionamientos.forEach(est => {
-				selectEstacionamiento.innerHTML += `<option value="${est.estacionamiento_id}">${est.nombre}</option>`;
-			});
-		} catch (err) {
-			console.error("Error cargando estacionamientos:", err);
+	tbody.addEventListener('click', (e) => {
+		if (e.target.classList.contains('edit')) {
+			const btn= e.target;
+			activarEdicion(btn, btn.dataset.id, btn.dataset.num, btn.dataset.desc);
 		}
-	}
+	});
 	selectEstacionamiento.addEventListener('change', (e) => {
-		const id = e.target.value;
-		if(id) {
-			cargarPisos(id);
-		} else {
-			tbody.innerHTML = '';
-		}
+		cargarPisos(e.target.value);
 	});
-		
-	document.getElementById('button-create-bottom').addEventListener('click', () => {
-		document.getElementById('form-container').style.display = 'block';
+	btnCreate.addEventListener('click', () => {
+		formContainer.style.display = 'block';
 	});
-	document.getElementById('btn-cancelar-piso').addEventListener('click',() => {
-		document.getElementById('form-container').style.display = 'none';
+	btnCancelar.addEventListener('click', () => {
+		formContainer.style.display = 'none';
 	});
-
-	document.getElementById('btn-guardar-piso').addEventListener('click', guardarPiso);
+	btnGuardar.addEventListener('click', guardarPiso);
 	cargarEstacionamientos();
 });
-async function cargarPisos(idEstacionamiento = null) {
-	const tbody = document.getElementById ('tbody-pisos');
 
-	if (!idEstacionamiento) return;
+async function cargarEstacionamientos() {
+  const selectEstacionamiento = document.getElementById('select-estacionamiento');
+    try {
+        const res = await fetch('/api/estacionamientos');
+        const data = await res.json();
+
+        if (res.ok && Array.isArray(data)){
+        	selectEstacionamiento.innerHTML = '<option value="todos"> Todos los estacionamientos</option>';
+        	data.forEach(est => {
+        		const option = document.createElement('option');
+        		option.value = est.estacionamiento_id;
+        		option.textContent = est.nombre;
+        		selectEstacionamiento.appendChild(option);
+        	});
+        	cargarPisos('todos');
+        }
+    } catch (err) {
+        console.error("Error al cargar pisos:", err);
+    }
+}
+async function cargarPisos(idEstacionamiento = 'todos') {
+	const tbody = document.getElementById ('tbody-pisos');
 	try {
 		const res = await fetch(`/api/pisos?estacionamiento_id=${idEstacionamiento}`);
 		const pisos = await res.json();
-		if (Array.isArray(pisos)) {
-			tbody.innerHTML = pisos.map(piso => `
-				<tr>
+		tbody.innerHTML = Array.isArray(pisos) && pisos.length > 0
+		? pisos.map(piso => `
+				<tr id="fila-${piso.piso_id}">
 					<td>${piso.numero_piso}</td>
 					<td>${piso.descripcion}</td>
 					<td>
-						<button class="btn-action delete" onclick="eliminarPiso(${piso.piso_id})">ELIMINAR</button>
+						<button class="btn-action edit"
+							data-id="${piso.piso_id}"
+							data-num="${piso.numero_piso}"
+							data-desc="${piso.descripcion}">Editar</button>
+						<button class="btn-action delete" onclick="eliminarPiso(${piso.piso_id})">Eliminar</button>
 					</td>
 				</tr>
-			`).join('');
-		} else {
-			tbody.innerHTML = `<tr><td colspan="3"> No se encontraron pisos para este estacionamiento.</td></tr>`;
-		}
+		`).join('')
+		: '<tr><td colspan="3">No se encontraron pisos.</td></tr>';
 	}catch (err) {
 		console.error("Error cargando Pisos:", err );
+	}
+}
+
+function activarEdicion(btn,id,num,desc) {
+	const fila = btn.closest('tr');
+	fila.innerHTML = `
+		<td>
+			<input type="number" id="edit-num-${id}" class="swal2-input" style="padding: 10px; border: 1px solid #ccc;border-radius: 4px; flex: 2;"value="${num}">
+		</td>
+		<td>
+			<input type="text" id="edit-desc-${id}" class="swal2-input" style="padding: 10px; border: 1px solid #ccc;border-radius: 4px; flex: 2;"value="${desc}">
+		</td>
+		<td>
+			<button class="btn btn-success btn-guardar" onclick="guardarEdicion(${id})">Guardar</button>
+        	<button class="btn btn-secondary btn-cancelar" onclick="cargarPisos('todos')">Cancelar</button>
+		</td>
+	`;
+}
+async function guardarEdicion(id) {
+	const nuevoNum = document.getElementById(`edit-num-${id}`).value;
+	const nuevaDesc = document.getElementById(`edit-desc-${id}`).value;
+	try {
+		const res = await fetch(`/api/pisos/${id}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ numero_piso: nuevoNum, descripcion: nuevaDesc })
+		});
+		if (res.ok) {
+			Toast.fire({ icon: 'success', title: 'Piso actualizado' });
+			cargarPisos('todos');
+		} else {
+			Swal.fire('Error', 'No se pudo actualizar', 'error');
+		}
+	} catch (err) {
+		console.error("Error al guardar:", err);
 	}
 }
 async function guardarPiso() {
     const select = document.getElementById('select-estacionamiento');
     const inputNum = document.getElementById('numeroPiso');
     const inputDesc = document.getElementById('descripcionPiso');
+    const formContainer = document.getElementById('form-container');
+    const valorSeleccionado = select.value;
 
-    if (!select || !inputNum || !inputDesc) {
-        Swal.fire('Error', 'No se pudieron cargar los campos del formulario.', 'error');
-        return;
-    }
-
-    const valorSeleccionado = select.options[select.selectedIndex].value;
-	
-    if (!valorSeleccionado || valorSeleccionado === "") {
+    if (!valorSeleccionado || valorSeleccionado === "todos") {
         Swal.fire('Error', 'Debes seleccionar un estacionamiento válido', 'warning');
         return;
     }
@@ -102,12 +143,9 @@ async function guardarPiso() {
 
         if (res.ok) {
             Toast.fire({ icon: 'success', title: 'Piso creado correctamente' });
-	    const idActual = document.getElementById('select-estacionamiento').value;
-	    cargarPisos(idActual);
-            document.getElementById('form-container').style.display = 'none';
+            formContainer.style.display = 'none';
             inputNum.value = '';
             inputDesc.value = '';
-            select.selectedIndex = 0;
             cargarPisos(valorSeleccionado); 
         } else {
             const errorData = await res.json();
@@ -127,14 +165,13 @@ async function eliminarPiso(id) {
 		showCancelButton: true,
 		confirmButtonColor: '#211A60',
 		cancelButtonColor: '#dc3545',
-		confirmbuttonText: 'Si, eliminar',
-		cancelarButtonText: 'Cancelar'
+		confirmButtonText: 'Si, eliminar',
+		cancelButtonText: 'Cancelar'
 	});
 
 	if (result.isConfirmed) {
 		await fetch(`/api/pisos/delete/${id}`, { method: 'PUT' });
-		const idActual = document.getElementById('select-estacionamiento').value;
-		cargarPisos(idActual);
+		cargarPisos('todos');
 		Toast.fire({icon: 'success', title: 'Piso dado de baja' });
 	}
 }
