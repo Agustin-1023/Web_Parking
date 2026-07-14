@@ -3,15 +3,15 @@ import bcrypt from 'bcryptjs';
 
 async function registro(req,res){
 	const {nombre,userName,email,phone,password} = req.body;
-	//validacion basica de campos
+	
 	if (!nombre || !userName || !password || !email){
-	res.status(400).send({status: "Error", message:"Los campos estan incompletos"})
+		return res.status(400).send({status: "Error", message:"Los campos estan incompletos"})
 	}
 	try {
-	//generacion de hashes
+	
 		const salt = await bcrypt.genSalt(10);
 		const passwordHash = await bcrypt.hash(password, salt);
-	//insersion de datos en BD
+	
 		const query = 'INSERT INTO Usuario (user_name, nombre_completo, email, telefono, password_hash) VALUES (?,?,?,?,?)';
 		const valores = [userName,nombre,email,phone,passwordHash];
 	await pool.query(query,valores);
@@ -29,16 +29,13 @@ async function registro(req,res){
 async function login(req, res) {
 	const { userName, password } = req.body;
 
-	//validacion de campos
 	if (!userName || !password) {
 		return res.status(400).send({
 			status: "Error",
 			message: "Los campos estan incompletos" });
 	}
 	try {
-	//busqueda usuario
 		const [usuarios] = await pool.query('Select * from Usuario where user_name = ?', [userName]);
-
 		if (usuarios.length === 0) {
 			return res.status(400).send({
 				status: 'Error',
@@ -46,7 +43,6 @@ async function login(req, res) {
 			})
 		}
 		const usuarioBD = usuarios[0];
-	//comparacion de hashes
 	const loginCorrecto = await bcrypt.compare(password, usuarioBD.password_hash);
 	if (!loginCorrecto) {
 		return res.status(400).send({
@@ -55,7 +51,6 @@ async function login(req, res) {
 	}
 
 	req.session.usuario_id = usuarioBD.usuario_id;
-	//todo correcto
 	res.status(200).send({
 		status: "ok",
 		message: "Usuario logueado",
@@ -74,7 +69,6 @@ async function actualizarRol (req,res) {
 		const { user_name, nuevoRol } = req.body;
 		
 		try {
-			//hace el update
 			const [result] = await pool.query(
 				'update Usuario set rol = ? where user_name = ?',
 				[nuevoRol, user_name]
@@ -99,14 +93,12 @@ async function actualizarRol (req,res) {
 			});
 		}
 }
-//Listar estacionamientos
 
 const obtenerEstacionamientos = async (req,res) => {
 	console.log("sesion actual: ", req.session);
 	const usuario_id = req.session.usuario_id;
 	if (!usuario_id) { return res.status(400).json({ message: "usuario no identificado"});}
-	try {
-		//const query = `select e.estacionamiento_id, e.nombre, e.direccion, (select count(*) from Piso p where p.estacionamiento_id = e.estacionamiento_id) as cantidad_pisos from Estacionamiento e`		
+	try {		
 	const [rows] = await pool.query(
 		`select * from Estacionamiento where usuario_id = ? `,
 			[usuario_id]);
@@ -116,7 +108,6 @@ const obtenerEstacionamientos = async (req,res) => {
 		return res.status(500).json({ mensaje: "Error inrno al leer los estacionamientos"});
 	}
 };
-// Creacion de estacionamientos
 
 const crearEstacionamiento = async (req,res) => {
 	const { nombre, direccion } = req.body;
@@ -127,15 +118,14 @@ const crearEstacionamiento = async (req,res) => {
 	}
 	try {
 		const query = "INSERT INTO Estacionamiento (nombre, direccion, usuario_id) VALUES (?, ?, ?)";
-		await pool.query(query, [nombre, direccion, usuario_id]);
-		return res.status(201).json({mensaje: "Estacionamiento creado con exito"});
+		const [result] = await pool.query(query, [nombre,direccion,usuario_id]);
+
+		return res.status(201).json({id: result.insertId, mensaje: "Estacionamiento creado con exito"});
 	} catch (error) {
 		console.error("Error en crearEstacionamiento:",error);
 		return res.status(500).json({mensaje: "Error al insertar en la Base de datos" });
 	}
 };
-
-//Editar estaconamiento
 
 const modificarEstacionamiento = async (req,res) => {
 	const usuario_id = req.session.usuario_id;
@@ -162,8 +152,6 @@ const modificarEstacionamiento = async (req,res) => {
 	}
 };
 
-//eliminar estacionamientos --temporal--
-
 const eliminarEstacionamiento = async (req,res) => {
 	const usuario_id = req.session.usuario_id;
 	if (!usuario_id) return res.status(401).json({ message: " No autorizado" });
@@ -187,5 +175,3 @@ const eliminarEstacionamiento = async (req,res) => {
 
 
 export const metodos = {login,	registro, actualizarRol, obtenerEstacionamientos, crearEstacionamiento, modificarEstacionamiento, eliminarEstacionamiento };
-
-

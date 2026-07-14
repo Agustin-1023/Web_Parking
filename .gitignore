@@ -4,3 +4,4 @@ node_modules/
 *.swn
 *swo
 .db.js.swp
+salida.test
