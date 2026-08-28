@@ -1,1 +1,50 @@
+name: CI/CD Pipeline - Web Parking
 
+on:
+  push:
+    branches: [ main ] # Se activa al hacer push a la rama main
+
+jobs:
+  # -------------------------------------------------------------
+  # 1. PRUEBAS AUTOMATIZADAS (Jest)
+  # -------------------------------------------------------------
+  testing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar tests con Jest
+        env:
+          DB_PASSWORD: ${{ secrets.BD_PASSWORD }}
+        run: npm test
+
+  # -------------------------------------------------------------
+  # 2. DESPLIEGUE EN RASPBERRY PI
+  # -------------------------------------------------------------
+  deploy:
+    needs: testing # Solo se ejecuta si la etapa de testing finaliza con éxito
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Actualizar servidor por SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.RPI_HOST }}
+          username: ${{ secrets.RPI_USER }}
+          password: ${{ secrets.RPI_PASSWORD }}
+          script: |
+            cd /home/labastin/Web_Parking   # Ajusta con la ruta real de la carpeta en la Raspberry
+            git pull origin main
+            npm install --production
+            pm2 restart all || pm2 start server.js --name "web-parking"
