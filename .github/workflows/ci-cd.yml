@@ -2,14 +2,26 @@ name: CI/CD Pipeline - Web Parking
 
 on:
   push:
-    branches: [ main ] # Se activa al hacer push a la rama main
+    branches: [ main ]
 
 jobs:
-  # -------------------------------------------------------------
-  # 1. PRUEBAS AUTOMATIZADAS (Jest)
-  # -------------------------------------------------------------
   testing:
     runs-on: ubuntu-latest
+
+    # Servicio de MySQL temporal para el entorno de pruebas
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.BD_PASSWORD }}
+          MYSQL_DATABASE: parking_test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Descargar código del repositorio
@@ -26,14 +38,15 @@ jobs:
 
       - name: Ejecutar tests con Jest
         env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
           DB_PASSWORD: ${{ secrets.BD_PASSWORD }}
-        run: npm test
+          DB_NAME: parking_test_db
+          DB_PORT: 3306
+        run: npm test -- --testTimeout=10000 --detectOpenHandles --forceExit
 
-  # -------------------------------------------------------------
-  # 2. DESPLIEGUE EN RASPBERRY PI
-  # -------------------------------------------------------------
   deploy:
-    needs: testing # Solo se ejecuta si la etapa de testing finaliza con éxito
+    needs: testing
     runs-on: ubuntu-latest
     
     steps:
@@ -44,7 +57,7 @@ jobs:
           username: ${{ secrets.RPI_USER }}
           password: ${{ secrets.RPI_PASSWORD }}
           script: |
-            cd /home/labastin/Web_Parking   # Ajusta con la ruta real de la carpeta en la Raspberry
+            cd /home/labastin/Web_Parking
             git pull origin main
             npm install --production
             pm2 restart all || pm2 start server.js --name "web-parking"
