@@ -100,7 +100,7 @@ const obtenerEstacionamientos = async (req,res) => {
 	if (!usuario_id) { return res.status(400).json({ message: "usuario no identificado"});}
 	try {		
 	const [rows] = await pool.query(
-		`select * from Estacionamiento where usuario_id = ? `,
+		`select * from Estacionamiento where usuario_id = ? and activo=1`,
 			[usuario_id]);
 		return res.json(rows);
 	} catch (error) {
@@ -110,15 +110,15 @@ const obtenerEstacionamientos = async (req,res) => {
 };
 
 const crearEstacionamiento = async (req,res) => {
-	const { nombre, direccion } = req.body;
+	const { nombre, direccion, barrio, departamento } = req.body;
 	const usuario_id = req.session.usuario_id;
 	if (!usuario_id) { return res.status(401).json({ message: "usuario no identificado"});}
 	if(!nombre || !direccion) {
 		return res.status(400).json({ mensaje: "Nombre y direccion son requeridos." });
 	}
 	try {
-		const query = "INSERT INTO Estacionamiento (nombre, direccion, usuario_id) VALUES (?, ?, ?)";
-		const [result] = await pool.query(query, [nombre,direccion,usuario_id]);
+		const query = "INSERT INTO Estacionamiento (nombre, direccion,barrio,departamento, usuario_id) VALUES (?, ?, ?, ?, ?)";
+		const [result] = await pool.query(query, [nombre,direccion,barrio,departamento,usuario_id]);
 
 		return res.status(201).json({id: result.insertId, mensaje: "Estacionamiento creado con exito"});
 	} catch (error) {
@@ -157,7 +157,7 @@ const eliminarEstacionamiento = async (req,res) => {
 	if (!usuario_id) return res.status(401).json({ message: " No autorizado" });
 	const {id} = req.params;
 	try {
-		const query = "update from Estacionamiento  set activo = 0 where estacionamiento_id =? and usuario_id = ?";
+		const query = "update Estacionamiento  set activo = 0 where estacionamiento_id =? and usuario_id = ?";
 		const [result] = await pool.query(query, [id, usuario_id]);
 
 		if (result.affectedRows ===0) {

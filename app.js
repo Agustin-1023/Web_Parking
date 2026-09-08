@@ -4,7 +4,7 @@ import cors from "cors";
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import { deleteEstacionamiento } from './controladores/estacionamiento.controller.js';
 import { metodos as validacion } from "./controladores/validacion.control.js";
 import pisoRoutes from './routes/piso.routes.js'; 
 import lugaresRoutes from './routes/lugares.routes.js';
@@ -51,7 +51,7 @@ app.put("/api/actualizar-rol", (req, res) => validacion.actualizarRol(req, res))
 app.get("/api/estacionamientos", (req, res) => validacion.obtenerEstacionamientos(req, res));
 app.post("/api/estacionamientos", (req, res) => validacion.crearEstacionamiento(req, res));
 app.put("/api/estacionamientos/:id", (req, res) => validacion.modificarEstacionamiento(req, res));
-app.delete("/api/Estacionamientos/:id", (req, res) => validacion.eliminarEstacionamiento(req, res));
+app.delete("/api/estacionamientos/:id", deleteEstacionamiento);
 app.post("/api/crearPiso", (req,res) => validacion.crearPiso(req, res));
 
 export default app;

@@ -71,6 +71,8 @@ async function listarEstacionamientos() {
 async function procesarFormulario() {
 	const nombre = document.getElementById("nombreEst").value.trim();
 	const direccion = document.getElementById("direccionEst").value.trim();
+	const barrio = document.getElementById("barrioEst").value.trim();
+	const departamento = document.getElementById("departamentoEst").value.trim();
 	const formContainer = document.getElementById("form-container");
 	if (!nombre || !direccion) {
 		alert("Por favor, complete todos los campos obligatorios.");
@@ -80,7 +82,7 @@ async function procesarFormulario() {
 	const mode = formContainer.dataset.mode;
 
 	if (mode ==="create") {
-		await guardarNuevoEstacionamiento(nombre, direccion);
+		await guardarNuevoEstacionamiento(nombre, direccion, barrio, departamento);
 	} else if (mode === "edit") {
 		const id = formContainer.dataset.editId;
 		await guardarEdicionEstacionamiento(id, nombre, direccion);
@@ -89,12 +91,12 @@ async function procesarFormulario() {
 
 //insertando estacionamiento
 
-async function guardarNuevoEstacionamiento(nombre,direccion) {
+async function guardarNuevoEstacionamiento(nombre,direccion,barrio,departamento) {
 	try {
 		const respuesta = await fetch("/api/estacionamientos", {
 			method: "POST",
 			headers: {"Content-Type" : "application/json" },
-			body: JSON.stringify({nombre, direccion})
+			body: JSON.stringify({nombre, direccion,barrio,departamento})
 		});
 
 		if (respuesta.ok) {
@@ -110,6 +112,7 @@ async function guardarNuevoEstacionamiento(nombre,direccion) {
 		alert("Error de red al intentar insertar el registro.");
 	}
 }
+
 //formulario para editard datos
 function prepararEdicion(id, nombre, direccion) {
 	const formContainer = document.getElementById("form-container");
@@ -125,7 +128,7 @@ function prepararEdicion(id, nombre, direccion) {
 	formContainer.scrollIntoView({ behavior: 'smooth' });
 }
 
-//enviar datos a la apu
+//enviar datos a la api
 
 async function guardarEdicionEstacionamiento(id,nombre,direccion) {
 	try {
@@ -146,10 +149,12 @@ async function guardarEdicionEstacionamiento(id,nombre,direccion) {
 		console.error("Error en el PUT:", error);
 	}
 }
+
 //Eliminar registro
 
 async function eliminarParking(id) {
-	if (confirm(`Esta seguro de eliminar el estacionamiento con ID ${id}?\n Esta accion es irreversible y afectara a los pisos y lugares vinculados.`)) {
+	if (confirm(`Esta seguro de eliminar el estacionamiento con ID ${id}?\n Esta accion es 
+		irreversible y afectara a los pisos y lugares vinculados.`)) {
 		try {
 			const respuesta = await fetch('/api/estacionamientos/' + id, {
 				method: "DELETE"

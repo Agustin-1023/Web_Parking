@@ -5,7 +5,7 @@ const userName = document.getElementById("user-name").value;
 const password = document.getElementById("user-Password").value;
 
 try {
-	const respuesta = await fetch("http://192.168.1.49:9000/api/login", {
+	const respuesta = await fetch("/api/login", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ userName, password })
