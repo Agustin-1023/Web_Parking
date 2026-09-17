@@ -14,8 +14,7 @@ try {
 	if (respuesta.ok) {
 		localStorage.setItem("rol", resJson.rol);
 		localStorage.setItem("usuario",resJson.userName);
-
-		alert("bienvenido");
+		
 		if (resJson.redirect){
 			window.location.href = resJson.redirect;
 		} else {
@@ -26,6 +25,11 @@ try {
 		}
 } catch (error) {
 	console.error("error de conexion:", error);
-	alert("no se pudo conecta con la Rasberry");
+	Swal.fire({
+		title: "Fallo al iniciar sesion.",
+		text: "No se pudo inciiar sesion.",
+		icon: "error",
+		confirmButtonText: "Cerrar"
+	});
 }
 });

@@ -1,190 +1,112 @@
 <!DOCTYPE html>
-<html lang="es">
+<html leng="es">
 <head>
-	<meta charset="UTF-8">
-	<meta 
-		name="viewport"
-		contente="width=device-width, initial-scale=1.0">
-	<title>Panel de Reservas</title>
-	<link rel="stylesheet" href="./css/admin_parking.css">
-	<link rel="stylesheet" href="./css/reservas.css">
+	<meta charset="utf-8">
+	<title>ADMIN RESERVAS</title>
+	<link rel="stylesheet" type="text/css" href="./css/admin_parking.css">
+	<link rel="stylesheet" type="text/css" href="./css/reservas.css">
 </head>
 <body>
-	<aside class="sidebar"
-		<h2>Administracion</h2>
-		<ul>
-			<li>
-				<a href="#">Estadisticas</a>
-			</li>
-			<li>
-				<a href="#" class"active">Reservas
-				</a>
-			</li>
-			<li>
-				<a href="#">Usuarios</a>
-			</li>
-			<li>
-				<a href="#">Estacionamiento</a>
-			</li>
-			<li>
-				<a href="#">Reportes</a>
-			</li>
-			<li>
-				<a href="#">Configuraciones</a>
-			</li>
-			<li>
-				<a href="#">Administradores</a>
-			</li>
-			<li>
-				<a href="#" id="btnCerrarSesion">Cerrar sesion</a>
-			</li>
-		</ul>
+	<aside class="sidebar">
+		<ul class="sidebar-menu">
+		<div class="sidebar-header">
+			<h3>Administracion</h3>
+		</div>	
+			<ul class="sidebar-menu">
+				<li><a href="#">Estadisticas</a></li>
+				<li><a href="reservas.html" class="active">Reservas</a></li>
+				<li><a href="admin_lugar.html">Lugares</a></li>
+				<li><a href="admin_piso.html">Pisos</a></li>
+				<li><a href="#">Usuarios</a></li>
+				<li><a href="admin_paking.html">Estacionamiento</a></li>
+				<li><a href="#">Reportes</a></li>
+				<li><a href="#">Configuraciones</a></li>
+				<li><a href="#">Administradores</a></li>
+				<li><a href="#">Cerrar Sesion</a></li>
+			</ul>
 	</aside>
-	<main class="main-admin">
-		<h1>PANEL DE RESERVAS</h1>
-		<section class="reservations-filter">
-			<div class="filter-item">
-				<label for="buscarReserva">Buscar:</label>
-				<input type="text" id="buscarReserva" placeholder="Usuario o lugar...">
-			</div>
-			<div class="filter-item">
-				<label for="filtroEstado">Estado:</label>
-				<select id="filtroEstado">
-					<option value="todos">Todos</option>
-					<option value="Completada">Completada</option>
-					<option value="Cancelada"</option>
-				</select>
-			</div>
-			<div class="filter-item">
-				<label for="filterFecha">Fecha:</label>
-				<input type="date" id="filtroFecha">
-			</div>
-			<button id="btnLimpiarFiltros" class= "btn-filtrar">Limpiar</button>
-		</section>
-		<section class="last-reservastions">
-			<h2>Listado de Reservas></h2>
-			<div class="tabla-container">
-				<table class="reservatopms-table" id="reservationsTable">
-					<thead>
-						<tr>
-							<th>ID</th>
-							<th>Usuario</th>
-							<th>Lugar</th>
-							<th>Ingreso</th>
-							<th>Salida</th>
-							<th>Estado</th>
-							<th>Acciones</th>
-						</tr>
-					</thead>
-					<tbody id="reservationsBody"></tbody>
-				</table>
-			</div>
-		</section>
-		<div class="buttons-parkins">
-			<button id="button-create-bottom">Crear</button>
-			<button id="button-edit-bottom">Modificar</button>
-			<button id="button-delete-botton">Eliminar</button>
-		</div>
-	</main>
-	<div id="reservationModal" class="Reservation-modal hiden">
-		<div class="reservation-modal-content">
-			<button id="btnCloseModal" class="modal-close">
-				&time;
-			</button>
-			<h2 id="modalTitle">Crear Reserva</h2>
-			<div class="form-group">
-				<label for="usuarioReserva">
-					Usuario
-				</label>
-				<select id="usuarioReserva">
-					<option value="">
-						Juan Perez
-					</option>
-					<option value="">
-						Ana Garcia
-					</option>
-					<option value="">
-						Carlos Rodriguez
-					</option>
-				</select>
-			</div>
-			<div class="form-group">
-				<label for="lugarReserva">
-					Lugar
-				</label>
-				<select id="lugarReserva">
-					<option value="">
-						Seleccionar Lugar
-					</option>
-					<option value="">
-						Juan Perez
-					</option>
-					<option value="">
-						Ana Garcia
-					</option>
-					<option value="">
-						Carlos Rodriguez
-					</option>
-				</select>
-			</div>
+	<div class="main-admin">
+		<h1>PANEL DE GESTION DE RESERVAS</h1>
 
-			<div class="form-group">
-				<label for="lugarReserva">
-					Lugar
-				</label>
-				<select id="lugarReserva">
-					<option value="">
-						Seleccionar Lugar
-					</option>
-					<option value="1">
-						1A
-					</option>
-					<option value="2">
-						1B
-					</option>
-					<option value="3">
-						1C
-					</option>
-					<option value="4">
-						1D
-					</option>
+		<div class="top-controls">
+			<div class="filter-group">
+				<label for="select-estacionamiento-filtro"><strong>Estacionamiento:</strong></label>
+				<select id="select-estacionamiento-filtro">
+					<option value="todos">Todos Los Estacionamientos</option>
+				</select>
+				<label for="select-estado-filtro"><strong>Estado:</strong></label>
+				<select id="select-estado-filtro">
+					<option value="todos">Todos los estados</option>
+					<option value="activa">Activa</option>
+					<option value="Completada">Completada</option>
+					<option value="cancelada">Cancelada</option>
 				</select>
 			</div>
-			<div class="from-group">
-				<label for="fechaIngreso">
-					Fecha y hora de ingreso
-				</label>
-				<input type="datetime-local" id="fechaIngreso">
-			</div>
+			<button id="button-create-top" class="btn-primary">NUEVA RESERVA</button>
+		</div>
+		<div id="form-container" class="form-card" style="display:none;">
+			<h3 id="form-title">Nueva Reserva</h3>
+			
+		<div class="form-row">
 			<div class="form-group">
-				<label for="fechaSalida">
-					Fecha y hora de salida
-				</label>
-				<input type="datetime-local" id="fechaSalida">
-			</div>
-			<div class="form-group">
-				<label for="estadoReserva">
-					Estado
-				</label>
-				<select id="estadoReserva">
-					<option value="Activa">
-						Activa
-					</option>
-					<option value="Completada">
-						Completada
-					</option>
-					<option value="Cancelada">
-						Cancelada
-					</option>
+				<label for="select-estacionamiento">Estacionamiento:</label>
+				<select id="select-estacionamiento">
+					<option value="">Selecciona un estacionamiento...</option>
 				</select>
 			</div>
-			<div class="modal-buttons">
-				<button id="btnGuardarReserva" class="modal-btn-save">
-					GUARDAR
-				</button>
+			<div class="form-group">
+				<label for="select-lugar">Lugar:</label>
+				<select id="select-lugar">
+					<option value="">Selecciona primero un estacionamiento...</option>
+				</select>
 			</div>
+		</div>
+		<div class="form-row">
+			<div class="form-group">
+				<label for="inputPatente">Matricula Vehiculo:</label>
+				<label type="text" id="inputPatente" placeholder="ej: ABC 1234"></label>
+			</div>
+			<div class="form-group">
+				<label for="selectOrigen">Origen Reserva:</label>
+				<select id="selectOrigen">
+					<option value="manual">Manual (Panel Admin)</option>
+					<option value="web">Web</option>
+					<option value="app">App Movil</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-row">
+			<div class="form-group">
+				<label for="inputFechaInicio">Fecha/Hora Entrada:</label>
+				<input type="datetime-local" id="inputFechaInicio">
+			</div>
+			<div class="form-group">
+				<label for="inputFechaFin">Fecha/Hora Salida:</label>
+				<input type="datetime-local" id="inputFechaFin">
+			</div>
+		</div>
+		<div class="form-actions">
+			<button id="btn-guardar-reserva" class="btn-action btn-success">GUARDAR</button>
+			<button id="btn-cancelar-reserva" class="btn-action btn-secondary">CANCELAR</button>
 		</div>
 	</div>
-	<script src="reservas.js"></script>
+	<select class="last-reservations">
+		<h2>Listado de Reservas</h2>
+		<table class="reservations-table">
+			<thead>
+				<tr>
+					<th>Lugar / Estacionamiento</th>
+					<th>Patente</th>
+					<th>Entrada</th>
+					<th>Salida</th>
+					<th>Origen</th>
+					<th>Estado</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody id="tbody-reservas"></tbody>
+		</table>
+	</select>
+	</div>
 </body>
 </html>

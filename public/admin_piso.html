@@ -13,21 +13,31 @@
 			<h3>Administracion</h3>
 		</div>
 		<ul class="sidebar-menu">
-			<li><a href="#">Estadisticas</a></li>
-			<li><a href="#">Reservas</a></li>
-			<li><a href="admin_lugar.html">Lugares</a></li>
-			<li><a href="#">Pisos</a></li>
-			<li><a href="#">Usuarios</a></li>
-			<li><a href="admin_paking.html">Estacionamiento</a></li>
-			<li><a href="#">Reportes</a></li>
-			<li><a href="#">Configuraciones</a></li>
-			<li><a href="#">Administradores</a></li>
-			<li><a href="#">Cerrar sesion</a></li>
+            <li><a href="#">Estadisticas</a></li>
+            <li><a href="reservas.html">Reservas</a></li>
+            <li><a href="admin_lugar.html">Lugares</a></li>
+            <li><a href="admin_piso.html">Pisos</a></li>
+            <li><a href="#">Usuarios</a></li>
+            <li><a href="admin_paking.html">Estacionamiento</a></li>
+            <li><a href="#">Reportes</a></li>
+            <li><a href="#">Configuraciones</a></li>
+            <li><a href="#">Administradores</a></li>
+            <li><a href="#">Cerrar Sesion</a></li>
 		</ul>
 	</aside>
 
 	<div class="main-admin">
 		<h1>PANEL DE GESTION DE PISOS</h1>
+
+		<div class="top-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px;">
+			<div class="filter-group" style="display: flex; align-items: center; gap: 10px; flex: 1;">
+				<label for="select-estacionamiento-filtro"><strong>Estacionamiento:</strong></label>
+				<select id="select-estacionamiento-filtro"  style="padding: 8px 12px; border-radius: 5px; border: 1px solid #ccc; max-width: 320px; width: 100%;">
+					<option value="">Selecciona un estacionamiento...</option>
+				</select>
+			</div>
+			<button id="button-create-top" class="btn-action" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">CREAR PISO</button>
+		</div>
 
 		<div id="form-container" class="form-card" style="display:none;">			
 			<h3 style="color: #1a154b; margin-bottom: 15px;"> Nuevo Piso</h3>
@@ -63,7 +73,7 @@
 		</section>
 
 		<div class="buttons-parkins">
-			<button id="button-create-bottom">CREAR PISO</button>
+			
 			<button id="button-edit-bottom">MODIFICAR</button>
 			<button id="button-delete-bottom">ELIMINAR</button>
 		</div>

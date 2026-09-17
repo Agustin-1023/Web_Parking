@@ -6,13 +6,23 @@ const Toast = Swal.mixin({
 	timerProgressBar: true
 });
 
+function obtenerFiltroActual() {
+	const filtro = document.getElementById('select-estacionamiento-filtro');
+	return filtro ? filtro.value : 'todos';
+}
+
 document.addEventListener('DOMContentLoaded',() => {
+	document.getElementById('select-estacionamiento-filtro').addEventListener('change', listarPisosPorEstacionamiento);
 	const selectEstacionamiento = document.getElementById('select-estacionamiento');
 	const tbody = document.getElementById('tbody-pisos');
-	const btnCreate = document.getElementById('button-create-bottom');
+	const btnCreate = document.getElementById('button-create-top');
 	const btnCancelar = document.getElementById('btn-cancelar-piso');
 	const btnGuardar = document.getElementById('btn-guardar-piso');
 	const formContainer = document.getElementById('form-container');
+
+	if (selectFiltro) {
+		selectFiltro.addEventListener('change', (e) => cargarPisos(e.target.value));
+	}
 
 	tbody.addEventListener('click', (e) => {
 		if (e.target.classList.contains('edit')) {
@@ -20,12 +30,15 @@ document.addEventListener('DOMContentLoaded',() => {
 			activarEdicion(btn, btn.dataset.id, btn.dataset.num, btn.dataset.desc);
 		}
 	});
-	selectEstacionamiento.addEventListener('change', (e) => {
-		cargarPisos(e.target.value);
-	});
+
 	btnCreate.addEventListener('click', () => {
+		const filtroVal = selectFiltro ? selectFiltro.value : '';
+		if (filtroVal && filtroVal !== 'todos') {
+			selectEstacionamiento.value = filtroVal;
+		}
 		formContainer.style.display = 'block';
 	});
+
 	btnCancelar.addEventListener('click', () => {
 		formContainer.style.display = 'none';
 	});
@@ -35,18 +48,20 @@ document.addEventListener('DOMContentLoaded',() => {
 
 async function cargarEstacionamientos() {
   const selectEstacionamiento = document.getElementById('select-estacionamiento');
+  const selectFiltro = document.getElementById('select-estacionamiento-filtro');
+
     try {
         const res = await fetch('/api/estacionamientos');
         const data = await res.json();
 
         if (res.ok && Array.isArray(data)){
-        	selectEstacionamiento.innerHTML = '<option value="todos"> Todos los estacionamientos</option>';
+        	let opcionesHtml = '<option value="todos"> Todos los estacionamientos</option>';
+
         	data.forEach(est => {
-        		const option = document.createElement('option');
-        		option.value = est.estacionamiento_id;
-        		option.textContent = est.nombre;
-        		selectEstacionamiento.appendChild(option);
+        		opcionesHtml += `<option value= "${est.idEstacionamiento}">${est.descripcion}</option>`;
         	});
+        	if (selectForm) selectForm.innerHTML = opcionesHtml;
+        	if (selectFiltro) selectFiltro.innerHTML = opcionesHtml;
         	cargarPisos('todos');
         }
     } catch (err) {
@@ -54,10 +69,14 @@ async function cargarEstacionamientos() {
     }
 }
 async function cargarPisos(idEstacionamiento = 'todos') {
+	
 	const tbody = document.getElementById ('tbody-pisos');
+	tbody.innerHTML = '';
+	
 	try {
 		const res = await fetch(`/api/pisos?estacionamiento_id=${idEstacionamiento}`);
 		const pisos = await res.json();
+	
 		tbody.innerHTML = Array.isArray(pisos) && pisos.length > 0
 		? pisos.map(piso => `
 				<tr id="fila-${piso.piso_id}">

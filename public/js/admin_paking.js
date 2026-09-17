@@ -64,7 +64,12 @@ async function listarEstacionamientos() {
 
 	} catch (error) {
 		console.error("error al cargar estacionamientos:", error);
-		alert("Error de infraestructura: No se pudo conectar con el servicio de Rasberry pi.");
+		Swal.fire({
+			title: 'Error de servidor',
+			text: 'No se pudo iniciar comunicacion con el servidor',
+			icon: 'error',
+			confirmButtonText: 'Cerrar'
+		});
 	}
 } 
 //creando o editando
@@ -75,7 +80,14 @@ async function procesarFormulario() {
 	const departamento = document.getElementById("departamentoEst").value.trim();
 	const formContainer = document.getElementById("form-container");
 	if (!nombre || !direccion) {
-		alert("Por favor, complete todos los campos obligatorios.");
+		Swal.fire({
+			toast: true,
+			position: 'top-end',
+			icon: 'info',
+			title: 'Faltan completar campos obligatorios de Nombre y Direccion',
+			ShowConfirmButton: false,
+			timer: 2000
+		});
 		return;
 	}
 
@@ -100,16 +112,30 @@ async function guardarNuevoEstacionamiento(nombre,direccion,barrio,departamento)
 		});
 
 		if (respuesta.ok) {
-			alert("Estacionamiento registrado con exito.");
+			Swal.fire({
+				title: 'Estacionamiento creado!',
+				text: 'El estacionamiento fue creado correctaemnte',
+				icon: 'success',
+				confirmButtonText: 'Exitoso'
+			});
 			document.getElementById("form-container").style.display ="none";
-			listarEstacionamientos();
+			await listarEstacionamientos();
 		} else {
 			const errData = await respuesta.json();
-			alert(`error al guardar: ${errData.mensaje || 'consulte los logs del servidor. '}`);
+			Swal.fire({
+				title: 'Error al crear',
+				text: 'Fallo al crear el estacionamiento',
+				icon: 'error',
+				confirmButtonText: 'Cerrar'
+			});
 		}
 	} catch (error) {
-		console.error("Error en el POST:", error);
-		alert("Error de red al intentar insertar el registro.");
+		Swal.fire({
+			title: 'Error al crear el estacionamiento.',
+			text: 'No se pudo Iniciar la creacion del estacionamiento',
+			icon: 'error',
+			confirmButtonText: 'cerrar'
+		});
 	}
 }
 
@@ -131,6 +157,16 @@ function prepararEdicion(id, nombre, direccion) {
 //enviar datos a la api
 
 async function guardarEdicionEstacionamiento(id,nombre,direccion) {
+	const confirmacion = await Swal.fire({
+		title: 'Confirmar Modificar este estacionamiento?',
+		text: 'El Estacionamiento se actualizara',
+		icon: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#dc3545',
+		cancelButtonColor: '#6c757d',
+		confirmButtonText: 'Si, Modificar',
+		cancelButtonText: 'Cancelar'
+	});
 	try {
 		const respuesta = await fetch('/api/estacionamientos/' + id ,{
 			method: "PUT",
@@ -139,11 +175,21 @@ async function guardarEdicionEstacionamiento(id,nombre,direccion) {
 		});
 
 		if (respuesta.ok) {
-			alert("estacionamiento actualizado correctamente.");
+			Swal.fire({
+				icon: 'success',
+				title: 'Desactivado!',
+				text: 'El estacionamiento ha sido borrado con exito',
+				timer: 2000,
+				showConfirmButton: false
+			});
 			document.getElementById("form-container").style.display = "none";
-			listarEstacionamientos();
+			await listarEstacionamientos();
 		} else {
-			alert("No se pudo Actualizar el estacionamiento.");
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: datos.message || 'No se pido eliminar el registro.'
+			})
 		}
 	} catch (error) {
 		console.error("Error en el PUT:", error);
@@ -153,6 +199,16 @@ async function guardarEdicionEstacionamiento(id,nombre,direccion) {
 //Eliminar registro
 
 async function eliminarParking(id) {
+	const confirmacion = await Swal.fire({
+		title: 'Confirmar eliminar este estacionamiento?',
+		text: 'El registro pasara a estar inactivo en el sistema.',
+		icon: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#dc3545',
+		cancelButtonColor: '#6c757d',
+		confirmButtonText: 'Si, Eeliminar',
+		cancelButtonText: 'Cancelar'
+	});
 	if (confirm(`Esta seguro de eliminar el estacionamiento con ID ${id}?\n Esta accion es 
 		irreversible y afectara a los pisos y lugares vinculados.`)) {
 		try {
@@ -161,13 +217,27 @@ async function eliminarParking(id) {
 			});
 
 			if (respuesta.ok) {
-				alert("Registro eliminado des sistema.");
-				listarEstacionamientos();
+				Swal.fire({
+					icon: 'success',
+					title: 'Desactivado!',
+					text: 'El estacionamiento ha sido borrado con exito.',
+					timer:2000,
+					showConfirmButton: false
+				});
+				await listarEstacionamientos();
 			} else {
-				alert("Error al eliminar. verifique las restricciones de llaves foraneas.");
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: datos.message || 'No se pudo eliminar el registro.'
+				});
 			}
 		} catch (error) {
-			console.error("Error en el DELETE:", error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error de conexion',
+				text: 'Ocurrio un fallo al comunicarse con el servidor'
+			});
 		}
 	}
 }
