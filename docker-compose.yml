@@ -29,6 +29,8 @@ services:
        DB_PASSWORD: ${BD_PASSWORD:-db_test123}
        DB_NAME: ${DB_NAME:-parking_db}
        DB_PORT: 3306
+       CHOKIDAR_USERPOLLING: "true"
+       WATHPACK_POLLING: "true"
      depends_on:
        - db
 volumes:

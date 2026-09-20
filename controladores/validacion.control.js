@@ -1,38 +1,45 @@
 import pool from '../db.js';
 import bcrypt from 'bcryptjs';
 
-async function registro(req,res){
-	const {nombre,userName,email,phone,password} = req.body;
+async function registro(req, res) {
+	const { nombre, userName, email, phone, password } = req.body;
 	
-	if (!nombre || !userName || !password || !email){
-		return res.status(400).send({status: "Error", message:"Los campos estan incompletos"})
+	if (!nombre || !userName || !password || !email) {
+		return res.status(400).send({ status: "Error", message: "Los campos estan incompletos" });
 	}
 	try {
-	
 		const salt = await bcrypt.genSalt(10);
 		const passwordHash = await bcrypt.hash(password, salt);
 	
 		const query = 'INSERT INTO Usuario (user_name, nombre_completo, email, telefono, password_hash) VALUES (?,?,?,?,?)';
-		const valores = [userName,nombre,email,phone,passwordHash];
-	await pool.query(query,valores);
+		const valores = [userName, nombre, email, phone, passwordHash];
+		await pool.query(query, valores);
 
-	res.status(201).send({
-		status: "ok", 
-		message: "!Usuario Guardado en BD",
-		redirect:"/login"
-	});
-}catch(error){
-	console.error("Error al insertar:", error);
-	res.status(500).send({status: "Error", message: "No se pudo guardar el usuario"});
-} 
+		res.status(201).send({
+			status: "ok", 
+			message: "!Usuario Guardado en BD",
+			redirect: "/login"
+		});
+	} catch (error) {
+		console.error("Error al insertar:", error);
+		if (error.code === 'ER_DUP_ENTRY') {
+			return res.status(400).send({
+				status: "Error",
+				message: "El usuario o email ya se encuentra registrado"
+			});
+		}
+		res.status(500).send({ status: "Error", message: "No se pudo guardar el usuario" });
+	} 
 }
+
 async function login(req, res) {
 	const { userName, password } = req.body;
 
 	if (!userName || !password) {
 		return res.status(400).send({
 			status: "Error",
-			message: "Los campos estan incompletos" });
+			message: "Los campos estan incompletos"
+		});
 	}
 	try {
 		const [usuarios] = await pool.query('Select * from Usuario where user_name = ?', [userName]);
@@ -40,128 +47,134 @@ async function login(req, res) {
 			return res.status(400).send({
 				status: 'Error',
 				message: 'Error durante el login'
-			})
+			});
 		}
 		const usuarioBD = usuarios[0];
-	const loginCorrecto = await bcrypt.compare(password, usuarioBD.password_hash);
-	if (!loginCorrecto) {
-		return res.status(400).send({
-			status: "Error",
-			message: "Error duarante el login" })
-	}
+		const loginCorrecto = await bcrypt.compare(password, usuarioBD.password_hash);
+		if (!loginCorrecto) {
+			return res.status(400).send({
+				status: "Error",
+				message: "Error duarante el login"
+			});
+		}
 
-	req.session.usuario_id = usuarioBD.usuario_id;
-	res.status(200).send({
-		status: "ok",
-		message: "Usuario logueado",
-		userName: usuarioBD.user_name,
-		rol: usuarioBD.rol,
-		redirect: usuarioBD.rol === 'pendiente' ? "/seleccion-rol.html" :"/admin"
-	})
-	}catch (error) {
+		req.session.usuario_id = usuarioBD.usuario_id;
+		res.status(200).send({
+			status: "ok",
+			message: "Usuario logueado",
+			userName: usuarioBD.user_name,
+			rol: usuarioBD.rol,
+			redirect: usuarioBD.rol === 'pendiente' ? "/seleccion-rol.html" : "/admin"
+		});
+	} catch (error) {
 		console.error("Error en login:", error);
 		res.status(500).send({
 			status: "Error",
-			message: "Error interno del servidor" });
+			message: "Error interno del servidor"
+		});
 	}
 }
-async function actualizarRol (req,res) {
-		const { user_name, nuevoRol } = req.body;
-		
-		try {
-			const [result] = await pool.query(
-				'update Usuario set rol = ? where user_name = ?',
-				[nuevoRol, user_name]
-			);
 
-			if (result.affectedRows > 0) {
-				res.status(200).send({
-					status: "ok",
-					message: "Rol actualizado correctamente"
-				});
-			}else{
-				res.status(404).send({
-					status:"error",
-					message: "Usuario no encontrado"
-				});
-			}
-		} catch (error) {
-			console.error("Error en DB:", error);
-			res.status(500).send({
+async function actualizarRol(req, res) {
+	const { user_name, nuevoRol } = req.body;
+	
+	try {
+		const [result] = await pool.query(
+			'update Usuario set rol = ? where user_name = ?',
+			[nuevoRol, user_name]
+		);
+
+		if (result.affectedRows > 0) {
+			res.status(200).send({
+				status: "ok",
+				message: "Rol actualizado correctamente"
+			});
+		} else {
+			res.status(404).send({
 				status: "error",
-				message: "Error interno del servidor"
+				message: "Usuario no encontrado"
 			});
 		}
+	} catch (error) {
+		console.error("Error en DB:", error);
+		res.status(500).send({
+			status: "error",
+			message: "Error interno del servidor"
+		});
+	}
 }
 
-const obtenerEstacionamientos = async (req,res) => {
+const obtenerEstacionamientos = async (req, res) => {
 	console.log("sesion actual: ", req.session);
 	const usuario_id = req.session.usuario_id;
-	if (!usuario_id) { return res.status(400).json({ message: "usuario no identificado"});}
+	if (!usuario_id) { return res.status(400).json({ message: "usuario no identificado" }); }
 	try {		
-	const [rows] = await pool.query(
-		`select * from Estacionamiento where usuario_id = ? and activo=1`,
-			[usuario_id]);
+		const [rows] = await pool.query(
+			`select * from Estacionamiento where usuario_id = ? and activo=1`,
+			[usuario_id]
+		);
 		return res.json(rows);
 	} catch (error) {
 		console.error("Error en obtenerEstacionamientos: ", error);
-		return res.status(500).json({ mensaje: "Error inrno al leer los estacionamientos"});
+		return res.status(500).json({ mensaje: "Error inrno al leer los estacionamientos" });
 	}
 };
 
-const crearEstacionamiento = async (req,res) => {
+const crearEstacionamiento = async (req, res) => {
 	const { nombre, direccion, barrio, departamento } = req.body;
 	const usuario_id = req.session.usuario_id;
-	if (!usuario_id) { return res.status(401).json({ message: "usuario no identificado"});}
-	if(!nombre || !direccion) {
+	if (!usuario_id) { return res.status(401).json({ message: "usuario no identificado" }); }
+	if (!nombre || !direccion) {
 		return res.status(400).json({ mensaje: "Nombre y direccion son requeridos." });
 	}
 	try {
 		const query = "INSERT INTO Estacionamiento (nombre, direccion,barrio,departamento, usuario_id) VALUES (?, ?, ?, ?, ?)";
-		const [result] = await pool.query(query, [nombre,direccion,barrio,departamento,usuario_id]);
+		const [result] = await pool.query(query, [nombre, direccion, barrio, departamento, usuario_id]);
 
-		return res.status(201).json({id: result.insertId, mensaje: "Estacionamiento creado con exito"});
+		return res.status(201).json({ id: result.insertId, mensaje: "Estacionamiento creado con exito" });
 	} catch (error) {
-		console.error("Error en crearEstacionamiento:",error);
-		return res.status(500).json({mensaje: "Error al insertar en la Base de datos" });
+		console.error("Error en crearEstacionamiento:", error);
+		return res.status(500).json({ mensaje: "Error al insertar en la Base de datos" });
 	}
 };
 
-const modificarEstacionamiento = async (req,res) => {
+const modificarEstacionamiento = async (req, res) => {
 	const usuario_id = req.session.usuario_id;
 	if (!usuario_id) return res.status(401).json({ message: "No autorizado" });
 
-	const {id} = req.params;
-	const {nombre,direccion } = req.body;
+	const { id } = req.params;
+	const { nombre, direccion } = req.body;
 
-	if (!nombre || !direccion ) {
-		return res.status(400).json({ mensaje: " Campos incompletos."});
+	if (!nombre || !direccion) {
+		return res.status(400).json({ mensaje: " Campos incompletos." });
 	}
 
 	try {
 		const [result] = await pool.query(
-			"Update Estacionamiento Set nombre = ?, direccion= ? where estacionamiento_id = ? and usuario_id = ?",[nombre, direccion, id, usuario_id] );
-		if (result || result.affectedRows === 0) {
+			"Update Estacionamiento Set nombre = ?, direccion= ? where estacionamiento_id = ? and usuario_id = ?",
+			[nombre, direccion, id, usuario_id]
+		);
+		if (!result || result.affectedRows === 0) {
 			return res.status(404).json({ mensaje: "Estacionamiento no encontrado" });
 		}
 
-		return res.json({ mensaje: "Estacionamiento actualizado con exito"});
+		return res.json({ mensaje: "Estacionamiento actualizado con exito" });
 	} catch (error) {
 		console.error("Error en modificar Estacionamiento: ", error);
 		return res.status(500).json({ mensaje: "Error al actualizar la base de datos" });
 	}
 };
 
-const eliminarEstacionamiento = async (req,res) => {
+const eliminarEstacionamiento = async (req, res) => {
 	const usuario_id = req.session.usuario_id;
 	if (!usuario_id) return res.status(401).json({ message: " No autorizado" });
-	const {id} = req.params;
+	const { id } = req.params;
 	try {
-		const query = "update Estacionamiento  set activo = 0 where estacionamiento_id =? and usuario_id = ?";
+		const query = "update Estacionamiento set activo = 0 where estacionamiento_id =? and usuario_id = ?";
 		const [result] = await pool.query(query, [id, usuario_id]);
 
-		if (result.affectedRows ===0) {
-			return res.status(404).json({ mensaje: "El estacionamiento ya no existe o no se encontro"});
+		if (result.affectedRows === 0) {
+			return res.status(404).json({ mensaje: "El estacionamiento ya no existe o no se encontro" });
 		}
 
 		return res.json({ mensaje: "Estacionamiento eliminado conrrectamente" });
@@ -173,5 +186,12 @@ const eliminarEstacionamiento = async (req,res) => {
 	}
 };
 
-
-export const metodos = {login,	registro, actualizarRol, obtenerEstacionamientos, crearEstacionamiento, modificarEstacionamiento, eliminarEstacionamiento };
+export const metodos = {
+	login,
+	registro,
+	actualizarRol,
+	obtenerEstacionamientos,
+	crearEstacionamiento,
+	modificarEstacionamiento,
+	eliminarEstacionamiento
+};

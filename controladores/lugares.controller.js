@@ -2,25 +2,43 @@ import pool from '../db.js';
 
 export const getLugares = async (req, res) => {
     const usuario_id = req.session.usuario_id;
-    const { piso_id } = req.query;
+    const { estacionamiento_id ,piso_id } = req.query;
 
     if (!usuario_id) return res.status(401).json({ message: "No autorizado" });
-    
-    if (!piso_id) {
-        return res.status(400).json({ message: "ID de Piso requerido" });
-    }
 
     try {
-        const [rows] = await pool.query(`
-            SELECT L.* FROM Lugar L
-            INNER JOIN Piso P ON L.piso_id = P.piso_id
-            INNER JOIN Estacionamiento E ON P.estacionamiento_id = E.estacionamiento_id
-            WHERE E.usuario_id = ? AND L.piso_id = ? AND L.activo = 1`, 
-            [usuario_id, piso_id]
-        );
-        res.json(rows);
+        let sql = `
+            Select 
+                L.lugar_id,
+                L.piso_id,
+                L.codigo_lugar as numero,
+                L.tipo_lugar,
+                L.estado,
+                L.activo,
+                P.estacionamiento_id,
+                P.numero_piso,
+                E.nombre as nombre_estacionamiento
+            from Lugar Lugar
+            inner join Piso P on L.piso_id = P.piso_id
+            inner join Estacionamiento E on P.estacionamiento_id= E.estacionamiento_id
+            where E.usuario_id =? and L.activo =1
+        `;
+        const params = [usuario_id];
+        if(estacionamiento_id && estacionamiento_id !== 'todos') {
+            sql += "and P.estacionamiento_id = ?";
+            params.push(estacionamiento_id);
+        }
+        if (piso_id && piso_id !== 'todos') {
+            sql += "and L.piso_id = ?";
+            params.push(piso_id);
+        }
+        sql += "order by L.codigo_lugar asc";
+
+        const [rows] = await pool.query(sql, params);
+        res.json (rows);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener lugares", error: error.message });
+        console.error("error al obtener lugares:", error);
+        res.status(500).json({message: "Error al obtener lugares", error: error.message});
     }
 };
 

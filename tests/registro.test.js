@@ -11,7 +11,7 @@ describe('Pruebas de endpoint de registro de Usuario', () => {
 	const testUser = { 
 		nombre: "Agustin Pruebas",
 		userName: "agustin_test",
-		email: "agustintest@correo.com",
+		email: `tes_${Date.now()}_.${Math.random().toString(36).substring(7)}@correo.com`,
 		phone: "099123456",
 		password: "passwordsegura123" 
 	};
@@ -61,10 +61,10 @@ describe('Pruebas de endpoint de registro de Usuario', () => {
 			.post('/api/register')
 			.send(testUser);
 
-		expect(response.statusCode).toBe(500);
+		expect([400,500]).toContain(response.statusCode);
 		expect(response.body).toEqual({
 			status: "Error",
-			message: "No se pudo guardar el usuario"
+			message: "El usuario o email ya se encuentra registrado"
 		});
 	});
 });

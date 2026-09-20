@@ -40,7 +40,9 @@ describe('Pruebas de creacion', () => {
         const response = await agent.post('/api/estacionamientos')
             .send({
                 nombre: 'parking test',
-                direccion: 'calle test 123'
+                direccion: 'calle test 123',
+                barrio: 'Centro',
+                departamento: 'Montevideo'
             });
         expect(response.statusCode).toBe(201);
         testEstacionamientoId = response.body.id; 

@@ -8,7 +8,7 @@ import { deleteEstacionamiento } from './controladores/estacionamiento.controlle
 import { metodos as validacion } from "./controladores/validacion.control.js";
 import pisoRoutes from './routes/piso.routes.js'; 
 import lugaresRoutes from './routes/lugares.routes.js';
-
+import reservaRoutes from './routes/reserva.routes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/pisos', pisoRoutes);
 app.use('/api', lugaresRoutes);
-
+app.use('/api/reserva', reservaRoutes);
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.post("/register", (req, res) => res.sendFile(path.join(__dirname, "Registros.html")));
 
@@ -53,5 +53,6 @@ app.post("/api/estacionamientos", (req, res) => validacion.crearEstacionamiento(
 app.put("/api/estacionamientos/:id", (req, res) => validacion.modificarEstacionamiento(req, res));
 app.delete("/api/estacionamientos/:id", deleteEstacionamiento);
 app.post("/api/crearPiso", (req,res) => validacion.crearPiso(req, res));
+
 
 export default app;
