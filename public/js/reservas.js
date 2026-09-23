@@ -7,15 +7,15 @@ const Toast = Swal.mixin({
 });
 
 function obtenerFiltrosActuales() {
-	const est = document.getElementById("select-estacionamiento-filtro").value;
-	const estado = document.getElementById("select-estado-filtro").value;
+	const est = document.getElementById("select-estacionamiento-filtro").value || 'todos';
+	const estado = document.getElementById("select-estado-filtro").value || 'todos';
 	return { est, estado};
 } 
 
 document.addEventListener("DOMContentLoaded", () => {
-	const selectEstFiltro = document.getElementById("select-estado-filtro");
+	const selectEstFiltro = document.getElementById("select-estacionamiento-filtro");
 	const selectEstadoFiltro = document.getElementById("select-estado-filtro");
-	const selectEstForm = document.getElementById("select-estacionamiento"});
+	const selectEstForm = document.getElementById("select-estacionamiento");
 	const btnCreate = document.getElementById("button-create-top");
 	const btnCancelar = document.getElementById("btn-cancelar-reserva");
 	const btnGuardar = document.getElementById("btn-guardar-reserva");
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function cargarEstacionamientos() {
-	const selectFiltro = document.getElementById('select-estado-filtro');
+	const selectFiltro = document.getElementById('select-estacionamiento-filtro');
 	const selectForm = document.getElementById('select-estacionamiento');
 
 	try {
@@ -60,12 +60,12 @@ async function cargarEstacionamientos() {
 			let opcionesFiltro = '<option value="todos"> Todos los estacionamientos</option>';
 			let opcionesForm = '<option value=""> Selecciona un estacionamiento...</option>';
 
-			data.fetch(est => {
+			data.forEach(est => {
 				opcionesFiltro += `<option value="${est.estacionamiento_id}">${est.nombre}</option>`;
 				opcionesForm += `<option value="${est.estacionamiento_id}">${est.nombre}</option>`;
 			});
-			selectFiltro.innerHTML = opcionesFiltro;
-			selectForm.innerHTML = opcionesForm;
+			if (selectFiltro) selectFiltro.innerHTML = opcionesFiltro;
+			if (selectForm) selectForm.innerHTML = opcionesForm;
 			cargarReservas();
 		}
 	} catch (err) {
@@ -95,7 +95,7 @@ async function cargarLugaresPorEstacionamiento(estacionamiento_id) {
 			selectLugar.innerHTML = `<option value=""> No hay lugares disponibles</option>`;
 		}
 	} catch (err) {
-		console.error("Error al cargar Lugares:", err);
+		console.warn("No se pudo cargar los lugares individualmente, se usara asignacion automatica.", err);
 		selectLugar.innerHTML = `<option value="">Error al cargar lugares</option>`;
 	}
 }
@@ -107,12 +107,22 @@ function aplicarFiltros() {
 
 async function cargarReservas(estacionamiento_id = 'todos', estado = 'todos') {
 	const tbody = document.getElementById('tbody-reservas');
-	tbody.innerHTML = '';
+	if (!tbody) return;
 
 	try {
-		const res = await fetch(`/api/reservas?estacionamiento_id=${estacionamiento_id}&estado=${estado}`);
+		const res = await fetch(`/api/reserva?estacionamiento_id=${estacionamiento_id}&estado=${estado}`);
 		const reservas = await res.json();
 
+		if (!Array.isArray(reservas) || reservas.length === 0){
+			tbody.innerHTML =`
+				<tr>
+					<td colspan= "7" style="text-align: center; padding: 20px;">
+						No se encontraron reservas registradas.
+					</td>
+				</tr>
+			`;
+			return;
+		}
 		tbody.innerHTML = Array.isArray(reservas) && reservas.length >0
 			? reservas.map(r => `
 				<tr id="fila-reserva-${r.reserva_id}">
@@ -135,19 +145,19 @@ async function cargarReservas(estacionamiento_id = 'todos', estado = 'todos') {
 
 async function guardarReserva() {
 	const estacionamiento_id = document.getElementById('select-estacionamiento').value;
-	const lugarId = document.getElementById('select-lugar').value;
+	const tipo_lugar = document.getElementById('select-tipo-lugar')?.value || '';
 	const patente = document.getElementById('inputPatente').value.trim();
-	const origen = document.getElementById('selectOrigen').value;
+	const origen = document.getElementById('selectOrigen').value || 'manul';
 	const fechaInicio = document.getElementById('inputFechaInicio').value;
 	const fechaFin = document.getElementById('inputFechaFin').value;
 
-	if (!estacionamiento_id || !lugarId || !fechaInicio || !fechaFin) {
+	if (!estacionamiento_id || !tipo_lugar || !fechaInicio || !fechaFin) {
 		Swal.fire('Atencion', "Por favor completa el estacionamiento, Lugar, y las fechas de entrada/Salida", 'warning');
 		return;
 	}
 	const payload = {
 		estacionamiento_id: parseInt(estacionamiento_id),
-		lugar_id: parseInt(lugarId),
+		tipo_lugar: tipo_lugar,
 		patente_manual: patente,
 		origen_reserva: origen,
 		fecha_inicio: fechaInicio,
@@ -155,7 +165,7 @@ async function guardarReserva() {
 	};
 
 	try {
-		const res = await fetch('/api/reservas', {
+		const res = await fetch('/api/reserva', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json'},
 			body: JSON.stringify(payload)
@@ -191,7 +201,7 @@ async function cancelarReserva(id) {
 
 	if(result.isConfirmed) {
 		try {
-			const res = await fetch(`/api/reservas/cancelar/${id}`, {method: 'PUT'});
+			const res = await fetch(`/api/reserva/cancelar/${id}`, {method: 'PUT'});
 			if (res.ok) {
 				Toast.fire({ icon: 'success', title: 'Reserva cancelada'});
 				aplicarFiltros();

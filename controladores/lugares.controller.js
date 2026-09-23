@@ -18,7 +18,7 @@ export const getLugares = async (req, res) => {
                 P.estacionamiento_id,
                 P.numero_piso,
                 E.nombre as nombre_estacionamiento
-            from Lugar Lugar
+            from Lugar L
             inner join Piso P on L.piso_id = P.piso_id
             inner join Estacionamiento E on P.estacionamiento_id= E.estacionamiento_id
             where E.usuario_id =? and L.activo =1

@@ -44,14 +44,50 @@ export const getReservas = async (req, res) => {
 };
 
 export const crearReserva = async (req, res) => {
-	const { lugar_id, patente_manual, origen_reserva, fecha_inicio, fecha_fin } = req.body;
+	const {estacionamiento_id,tipo_lugar, lugar_id, patente_manual, origen_reserva, fecha_inicio, fecha_fin } = req.body;
 
-	if (!lugar_id || !fecha_inicio || !fecha_fin) {
+	if (!estacionamiento_id || !fecha_inicio || !fecha_fin) {
 		return res.status(400).json({ message: 'lugar y fechas no estan' });
 	}
 	try {
 		const usuario_id = req.user?.usuario_id || req.session?.usuario_id;
+		
+		const origenValido = ['cliente', 'admin'].includes(origen_reserva?.toLowerCase())
+		? origen_reserva.toLowerCase()
+		:'admin';
+		let lugarAsignadoId = lugar_id;
 
+		if (!lugarAsignadoId) {
+			let queryBuscarLugar = `
+				select L.lugar_id 
+				from Lugar L
+				inner join Piso P on L.piso_id = P.piso_id
+				where P.estacionamiento_id = ?
+			`;
+			const paramsBuscar = [estacionamiento_id];
+
+			if (tipo_lugar) {
+				queryBuscarLugar += ` and L.tipo_lugar = ?`;
+				paramsBuscar.push(tipo_lugar);
+			}
+			queryBuscarLugar += `
+				and L.lugar_id not in (
+				select R.lugar_id
+				from Reserva R
+					where R.estado_reserva = 'Activa'
+					and ((R.fecha_ingreso <= ? and R.fecha_salida >= ?)
+					or (R.fecha_ingreso <= ? and R.fecha_salida >= ?)
+					or (? <= R.fecha_ingreso and ? >= R.fecha_salida))
+				) limit 1
+			`;
+			paramsBuscar.push(fecha_inicio,fecha_inicio,fecha_fin,fecha_fin,fecha_inicio,fecha_fin);
+			const [lugaresDisponibles] = await db.query(queryBuscarLugar, paramsBuscar);
+
+			if (lugaresDisponibles.length === 0 ) {
+				return res.status(400).json({ message: "no hay lugares disponibles en ese rango de horarios."});
+			}
+			lugarAsignadoId = lugaresDisponibles[0].lugar_id;
+		} else {
 		const checkQuery = `
 			select reserva_id from Reserva
 			where lugar_id = ? 
@@ -64,12 +100,13 @@ export const crearReserva = async (req, res) => {
 		if (solapados.length > 0) {
 			return res.status(400).json({ message: 'El lugar ya se encuentra reservado en ese rango de horarios.' });
 		}
+	}
 		const insertQuery = `
 			insert into Reserva (lugar_id, usuario_id, fecha_ingreso, fecha_salida, estado_reserva, patente_manual, origen_reserva)
 			values (?, ?, ?, ?, 'Activa', ?, ?)
 		`;
 		const [result] = await db.query(insertQuery, [
-			lugar_id, usuario_id, fecha_inicio, fecha_fin, patente_manual || null, origen_reserva || 'Manual'
+			lugarAsignadoId, usuario_id, fecha_inicio, fecha_fin, patente_manual || null, origen_reserva || 'Manual'
 		]);
 		res.status(201).json({
 			message: 'Reserva creada con exito',

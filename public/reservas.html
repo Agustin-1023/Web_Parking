@@ -5,6 +5,7 @@
 	<title>ADMIN RESERVAS</title>
 	<link rel="stylesheet" type="text/css" href="./css/admin_parking.css">
 	<link rel="stylesheet" type="text/css" href="./css/reservas.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 	<aside class="sidebar">
@@ -37,7 +38,7 @@
 				<label for="select-estado-filtro"><strong>Estado:</strong></label>
 				<select id="select-estado-filtro">
 					<option value="todos">Todos los estados</option>
-					<option value="activa">Activa</option>
+					<option value="Activa">Activa</option>
 					<option value="Completada">Completada</option>
 					<option value="cancelada">Cancelada</option>
 				</select>
@@ -60,18 +61,26 @@
 					<option value="">Selecciona primero un estacionamiento...</option>
 				</select>
 			</div>
+			<div class="form-group">
+				<label for="select-tipo-lugar">Tipo de Lugar:</label>
+				<select id="select-tipo-lugar">
+					<option value="todos">Cualquier tipo disponible</option>
+					<option value="Normal">Normal</option>
+					<option value="Discapacitados">Discapacitados</option>
+					<option value="Electrico">electrico</option>
+				</select>
+			</div>
 		</div>
 		<div class="form-row">
 			<div class="form-group">
 				<label for="inputPatente">Matricula Vehiculo:</label>
-				<label type="text" id="inputPatente" placeholder="ej: ABC 1234"></label>
+				<input type="text" id="inputPatente" placeholder="ej: ABC 1234"></input>
 			</div>
 			<div class="form-group">
 				<label for="selectOrigen">Origen Reserva:</label>
 				<select id="selectOrigen">
-					<option value="manual">Manual (Panel Admin)</option>
-					<option value="web">Web</option>
-					<option value="app">App Movil</option>
+					<option value="admin">Admin</option>
+					<option value="cliente">Cliente</option>
 				</select>
 			</div>
 		</div>
@@ -109,5 +118,5 @@
 	</select>
 	</div>
 </body>
-	<script src="./js/reserva.js" > </script>
+	<script src="./js/reservas.js" > </script>
 </html>
