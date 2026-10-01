@@ -42,80 +42,132 @@ export const getReservas = async (req, res) => {
 		res.status(500).json({ message: 'Error interno del servidor al obtener reservas.' });
 	}
 };
+// Función auxiliar para normalizar fechas al formato 'YYYY-MM-DD HH:mm:ss'
+const normalizarFechaSQL = (fechaStr) => {
+    if (!fechaStr) return null;
+    let limpia = String(fechaStr).replace('T', ' ').replace('Z', '');
+    if (limpia.includes('.')) {
+        limpia = limpia.split('.')[0];
+    }
+    if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$/.test(limpia)) {
+        limpia += ':00';
+    }
+    return limpia;
+};
 
 export const crearReserva = async (req, res) => {
-	const {estacionamiento_id,tipo_lugar, lugar_id, patente_manual, origen_reserva, fecha_inicio, fecha_fin } = req.body;
+    const { 
+        estacionamiento_id, 
+        tipo_lugar, 
+        lugar_id, 
+        patente_manual, 
+        origen_reserva, 
+        fecha_ingreso, 
+        fecha_salida 
+    } = req.body;
 
-	if (!estacionamiento_id || !fecha_inicio || !fecha_fin) {
-		return res.status(400).json({ message: 'lugar y fechas no estan' });
-	}
-	try {
-		const usuario_id = req.user?.usuario_id || req.session?.usuario_id;
-		
-		const origenValido = ['cliente', 'admin'].includes(origen_reserva?.toLowerCase())
-		? origen_reserva.toLowerCase()
-		:'admin';
-		let lugarAsignadoId = lugar_id;
+    if (!estacionamiento_id || !fecha_ingreso || !fecha_salida) {
+        return res.status(400).json({ message: 'Estacionamiento y fechas son obligatorios.' });
+    }
 
-		if (!lugarAsignadoId) {
-			let queryBuscarLugar = `
-				select L.lugar_id 
-				from Lugar L
-				inner join Piso P on L.piso_id = P.piso_id
-				where P.estacionamiento_id = ?
-			`;
-			const paramsBuscar = [estacionamiento_id];
+    try {
+        const usuario_id = req.user?.usuario_id || req.session?.usuario_id;
+        
+        const fInicio = normalizarFechaSQL(fecha_ingreso);
+        const fSalida = normalizarFechaSQL(fecha_salida);
 
-			if (tipo_lugar) {
-				queryBuscarLugar += ` and L.tipo_lugar = ?`;
-				paramsBuscar.push(tipo_lugar);
-			}
-			queryBuscarLugar += `
-				and L.lugar_id not in (
-				select R.lugar_id
-				from Reserva R
-					where R.estado_reserva = 'Activa'
-					and ((R.fecha_ingreso <= ? and R.fecha_salida >= ?)
-					or (R.fecha_ingreso <= ? and R.fecha_salida >= ?)
-					or (? <= R.fecha_ingreso and ? >= R.fecha_salida))
-				) limit 1
-			`;
-			paramsBuscar.push(fecha_inicio,fecha_inicio,fecha_fin,fecha_fin,fecha_inicio,fecha_fin);
-			const [lugaresDisponibles] = await db.query(queryBuscarLugar, paramsBuscar);
+        const origenValido = ['cliente', 'admin'].includes(origen_reserva?.toLowerCase())
+            ? origen_reserva.toLowerCase()
+            : 'admin';
 
-			if (lugaresDisponibles.length === 0 ) {
-				return res.status(400).json({ message: "no hay lugares disponibles en ese rango de horarios."});
-			}
-			lugarAsignadoId = lugaresDisponibles[0].lugar_id;
-		} else {
-		const checkQuery = `
-			select reserva_id from Reserva
-			where lugar_id = ? 
-				and estado_reserva = 'Activa' 
-				and ((fecha_ingreso <= ? and fecha_salida >= ?) or (fecha_ingreso <= ? and fecha_salida >= ?) or (? <= fecha_ingreso and ? >= fecha_salida))
-		`;
-		const [solapados] = await db.query(checkQuery, [
-			lugar_id, fecha_inicio, fecha_inicio, fecha_fin, fecha_fin, fecha_inicio, fecha_fin
-		]);
-		if (solapados.length > 0) {
-			return res.status(400).json({ message: 'El lugar ya se encuentra reservado en ese rango de horarios.' });
-		}
-	}
-		const insertQuery = `
-			insert into Reserva (lugar_id, usuario_id, fecha_ingreso, fecha_salida, estado_reserva, patente_manual, origen_reserva)
-			values (?, ?, ?, ?, 'Activa', ?, ?)
-		`;
-		const [result] = await db.query(insertQuery, [
-			lugarAsignadoId, usuario_id, fecha_inicio, fecha_fin, patente_manual || null, origen_reserva || 'Manual'
-		]);
-		res.status(201).json({
-			message: 'Reserva creada con exito',
-			reserva_id: result.insertId
-		});
-	} catch (error) {
-		console.error('Error al crear reserva:', error);
-		res.status(500).json({ message: 'Error interno del servidor al crear la reserva.' });
-	}
+        const lugarIdNum = Number(lugar_id);
+        const autoAsignar = !lugar_id || 
+                            lugar_id === 'cualquiera' || 
+                            lugar_id === 'todos' || 
+                            lugar_id === '' || 
+                            isNaN(lugarIdNum) || 
+                            lugarIdNum <= 0;
+
+        let lugarAsignadoId = null;
+
+        if (autoAsignar) {
+
+            let queryBuscarLugar = `
+                SELECT L.lugar_id 
+                FROM Lugar L
+                INNER JOIN Piso P ON L.piso_id = P.piso_id
+                WHERE P.estacionamiento_id = ?
+            `;
+            const paramsBuscar = [estacionamiento_id];
+
+            if (tipo_lugar && tipo_lugar !== 'todos' && tipo_lugar !== 'cualquiera') {
+                queryBuscarLugar += ` AND L.tipo_lugar = ?`;
+                paramsBuscar.push(tipo_lugar);
+            }
+            queryBuscarLugar += `
+                AND NOT EXISTS (
+                    SELECT 1 
+                    FROM Reserva R
+                    WHERE R.lugar_id = L.lugar_id
+                      AND LOWER(R.estado_reserva) = 'activa'
+                      AND REPLACE(R.fecha_ingreso, 'T', ' ') < ? 
+                      AND REPLACE(R.fecha_salida, 'T', ' ') > ?
+                ) 
+                LIMIT 1
+            `;
+            paramsBuscar.push(fSalida, fInicio);
+
+            const [lugaresDisponibles] = await db.query(queryBuscarLugar, paramsBuscar);
+
+            if (lugaresDisponibles.length === 0) {
+                return res.status(400).json({ message: "No hay lugares disponibles en ese rango de horarios." });
+            }
+
+            lugarAsignadoId = lugaresDisponibles[0].lugar_id;
+
+        } else {
+            lugarAsignadoId = lugarIdNum;
+
+            const checkQuery = `
+                SELECT reserva_id 
+                FROM Reserva
+                WHERE lugar_id = ? 
+                  AND LOWER(estado_reserva) = 'activa' 
+                  AND REPLACE(fecha_ingreso, 'T', ' ') < ? 
+                  AND REPLACE(fecha_salida, 'T', ' ') > ?
+            `;
+            
+            const [solapados] = await db.query(checkQuery, [lugarAsignadoId, fSalida, fInicio]);
+
+            if (solapados.length > 0) {
+                return res.status(400).json({ message: 'El lugar seleccionado ya se encuentra reservado en ese rango de horarios.' });
+            }
+        }
+
+        const insertQuery = `
+            INSERT INTO Reserva (lugar_id, usuario_id, fecha_ingreso, fecha_salida, estado_reserva, patente_manual, origen_reserva)
+            VALUES (?, ?, ?, ?, 'Activa', ?, ?)
+        `;
+        
+        const [result] = await db.query(insertQuery, [
+            lugarAsignadoId, 
+            usuario_id, 
+            fInicio, 
+            fSalida, 
+            patente_manual || null, 
+            origenValido
+        ]);
+
+        return res.status(201).json({
+            message: 'Reserva creada con éxito',
+            reserva_id: result.insertId,
+            lugar_id: lugarAsignadoId
+        });
+
+    } catch (error) {
+        console.error('Error al crear reserva:', error);
+        return res.status(500).json({ message: 'Error interno del servidor al crear la reserva.' });
+    }
 };
 
 export const cancelarReserva = async (req, res) => {

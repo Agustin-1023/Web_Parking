@@ -126,10 +126,10 @@ async function cargarReservas(estacionamiento_id = 'todos', estado = 'todos') {
 		tbody.innerHTML = Array.isArray(reservas) && reservas.length >0
 			? reservas.map(r => `
 				<tr id="fila-reserva-${r.reserva_id}">
-					<td><strong>${r.nombre || 'Est. ' + e.estacionamiento_id}</strong><br><small>Lugar #${r.numero || r.lugar_id}</small></td>
+					<td><strong>${r.nombre || 'Est. ' + r.estacionamiento_id}</strong><br><small>Lugar #${r.numero || r.lugar_id}</small></td>
 					<td>${r.patente_manual || '-'}</td>
-					<td>${formatearFecha(r.fecha_inicio)}</td>
-					<td>${formatearFecha(r.fecha_fin)}</td>
+					<td>${formatearFecha(r.fecha_ingreso)}</td>
+					<td>${formatearFecha(r.fecha_salida)}</td>
 					<td><small>${r.origen_reserva || 'manual'}</small></td>
 					<td><span class="badge badge-${r.estado || 'activa'}">${r.estado || 'activa'}</span></td>
 					<td>
@@ -160,8 +160,8 @@ async function guardarReserva() {
 		tipo_lugar: tipo_lugar,
 		patente_manual: patente,
 		origen_reserva: origen,
-		fecha_inicio: fechaInicio,
-		fecha_fin: fechaFin
+		fecha_ingreso: fechaInicio,
+		fecha_salida: fechaFin
 	};
 
 	try {
