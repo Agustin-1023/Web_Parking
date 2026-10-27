@@ -127,13 +127,14 @@ async function cargarReservas(estacionamiento_id = 'todos', estado = 'todos') {
 			? reservas.map(r => `
 				<tr id="fila-reserva-${r.reserva_id}">
 					<td><strong>${r.nombre || 'Est. ' + r.estacionamiento_id}</strong><br><small>Lugar #${r.numero || r.lugar_id}</small></td>
-					<td>${r.patente_manual || '-'}</td>
-					<td>${formatearFecha(r.fecha_ingreso)}</td>
-					<td>${formatearFecha(r.fecha_salida)}</td>
+					<td class="celda-patente" data-valor="${r.patente_manual || ''}">${r.patente_manual || '-'}</td>
+					<td class="celda-ingreso" data-valor="${r.fecha_ingreso}">${formatearFecha(r.fecha_ingreso)}</td>
+					<td class="celda-salida" data-valor="${r.fecha_salida}">${formatearFecha(r.fecha_salida)}</td>
 					<td><small>${r.origen_reserva || 'manual'}</small></td>
 					<td><span class="badge badge-${r.estado || 'activa'}">${r.estado || 'activa'}</span></td>
-					<td>
-						${r.estado !== 'cancelada' ? `<button class="btn-action btn-secondary" onclick="cancelarReserva(${r.reserva_id})">Cancelar</button>` : '_'} 
+					<td class="celda-acciones">
+						${r.estado !== 'cancelada' ? `<button class="btn-action btn-prymari" onclick="editarReserva(${r.reserva_id})">Editar</button>
+						<button class="btn-action btn-secondary" onclick="cancelarReserva(${r.reserva_id})">Cancelar</button>` : '_'} 
 					</td>
 				</tr>
 			`).join('')
@@ -226,5 +227,78 @@ function limpiarFormularioReserva() {
 function formatearFecha(cadenaFecha) {
 	if(!cadenaFecha) return '-';
 	const f = new Date(cadenaFecha);
-	return f.toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short'});
+	if (isNaN(f.getTime())) return '-';
+	return f.toLocaleString('es-UY', {dateStyle: 'short', timeStyle: 'short'});
+}
+function editarReserva(id) {
+	const fila = document.getElementById(`fila-reserva-${id}`);
+	if (!fila) return;
+
+	const celdaPatente = fila.querySelector('.celda-patente');
+	const celdaIngreso = fila.querySelector('.celda-ingreso');
+	const celdaSalida = fila.querySelector('.celda-salida');
+	const celdaAcciones = fila.querySelector('.celda-acciones');
+
+	const patenteVal = celdaPatente.dataset.valor || '';
+	const ingresoVal = aFormatoInputDateTime(celdaIngreso.dataset.valor);
+	const salidaVal = aFormatoInputDateTime(celdaSalida.dataset.valor);
+
+	celdaPatente.innerHTML = `<input type="text" class="form-control from-control-sm input-edit-patente" value="${patenteVal}">`;
+	celdaIngreso.innerHTML = `<input type="datetime-local" class="form-control from-control-sm input-edit-ingreso" value="${ingresoVal}">`;
+	celdaSalida.innerHTML = `<input type="datetime-local" class="form-control from-control-sm input-edit-salida" value="${salidaVal}">`;
+
+	celdaAcciones.innerHTML = `
+		<button class="btn-accion btn-success" onclick="guardarEdicionInline(${id})">Guardar</button>
+		<button class="btn-accion btn-secondary" onclick="cancelarEdicionInline()">Cancelar</button>
+	`;
+}
+
+async function guardarEdicionInline(id) {
+	const fila = document.getElementById(`fila-reserva-${id}`);
+	if(!fila) return;
+
+	const patente = fila.querySelector('.input-edit-patente').value.trim();
+	const fechaInicio = fila.querySelector('.input-edit-ingreso').value;
+	const fechaFin = fila.querySelector('.input-edit-salida').value;
+
+	if (!fechaInicio) {
+		Swal.fire('Atencion', 'La Fecha de ingreso debe ser obligatoria', 'warning');
+		return;
+	}
+	if (new Date(fechaFin) <= new Date(fechaInicio)) {
+		Swal.fire('Atencion','La fecha de salida debe ser posterior a la fecha de entrada', 'warning');
+		return;
+	}
+	const payload = {
+		patente_manual: patente,
+		fecha_ingreso: fechaInicio,
+		fecha_salida: fechaFin
+	};
+
+	try {
+		const res = await fetch(`/api/reserva/${id}`, {
+			method:'PUT',
+			headers: {'content-Type':'application/json'},
+			body: JSON.stringify(payload)
+		});
+		if(res.ok) {
+			Toast.fire({icon:'success', title: 'Reserva actualizada con exito'});
+			aplicarFiltros();
+		} else {
+			const errData = await res.json();
+			Swal.fire('Error', errData.message || ' No se pudo actualizar la reserva', 'error');
+		}
+	} catch (err) {
+		console.error("Error actualizando reserva: ", err);
+		Swal.fire('Error','Fallo de conexion con el servidor', 'error');
+	}
+}
+
+function cancelarEdicionInline() {
+	aplicarFiltros();
+}
+function aFormatoInputDateTime (cadenaFecha) {
+	if(!cadenaFecha) return '';
+	let limpio = cadenaFecha.replace('T',' ').substring(0,16);
+	return limpio.replace(' ', 'T');
 }

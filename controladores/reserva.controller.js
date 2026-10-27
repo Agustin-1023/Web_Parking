@@ -196,3 +196,73 @@ export const cancelarReserva = async (req, res) => {
 		res.status(500).json({ message: 'Error interno del servidor al cancelar reseva.' });
 	}
 };
+export const actualizarReserva = async (req,res) => {
+    const id = parseInt(req.params.id,10);
+
+    const {patente_manual,fecha_ingreso,fecha_salida} = req.body;
+
+    if (!fecha_ingreso) {
+        return res.status(400).json({ message: "La fecha de ingreso es obligatoria."});
+    }
+    const fInicio = new Date(fecha_ingreso);
+    const fSalida = new Date(fecha_salida);
+    if (isNaN(fInicio.getTime())) {
+        return res.status(400).json({message: 'Formato de fecha invalido.'});
+    }
+    if (fSalida <= fInicio) {
+        return res.status(400).json({message: 'La fecha de salida debe ser posterior a la fecha de entrada.'});
+    }
+    try {
+        const fInicioFormatted = fecha_ingreso.replace('T',' ');
+        const fSalidaFormatted = fecha_salida.replace('T', ' ');
+        const [reserva] = await db.query(
+        `select lugar_id from Reserva where reserva_id = ?`, [id]
+        );
+        if (reserva.length === 0) {
+            return res.status(400).json({ message: 'Reserva no encontrada.'});
+        }
+        const lugarId = reserva[0].lugar_id;
+        const checkSolapamientoQuery = `
+            select reserva_id 
+            from Reserva
+            where lugar_id = ?
+                and reserva_id != ?
+                and LOWER(estado_reserva) = 'Activa'
+                and Replace(fecha_ingreso, 'T', ' ') < ?
+                and replace(fecha_salida, 'T' , ' ') > ?
+        `;
+        const [solapados] = await db.query(checkSolapamientoQuery, [
+            lugarId,
+            id,
+            fSalidaFormatted,
+            fInicioFormatted
+        ]);
+        if (solapados.length > 0) {
+            return res.status(400).json({
+            message: 'El nuevo rango horario choca con otra reserva activa en ese lugar.'
+            });
+        }
+
+        const updateQuery = `
+            update Reserva
+            set 
+                fecha_ingreso =?,
+                fecha_salida = ?,
+                patente_manual = ?
+            where reserva_id = ?
+        `;
+        const [resultado] = await db.query(updateQuery, [
+            fInicioFormatted,
+            fSalidaFormatted,
+            patente_manual || null,
+            id
+        ]);
+        if (resultado.affectedRows === 0) {
+            return res.status(400).json({message: 'No se pudo actualizar la reserva.'});
+        }
+        return res.json({message: 'Reserva actualizada con exito.'});
+    } catch (error) {
+        console.error('Error al actualizar reserva: ', error);
+        return res.status(500).json({message: 'Error interno del servidor al actualizar la reserva.'});
+   }
+};
