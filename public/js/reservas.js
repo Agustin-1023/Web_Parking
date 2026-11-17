@@ -1,15 +1,17 @@
 const Toast = Swal.mixin({
-	Toast: true,
+	toast: true,
 	position: "top-end",
-	showConfirmButton:false,
+	showConfirmButton: false,
 	timer: 3000,
 	timerProgressBar: true
 });
 
+let cacheReservas = []; // Caché local para consultar datos al editar o ver detalles
+
 function obtenerFiltrosActuales() {
 	const est = document.getElementById("select-estacionamiento-filtro").value || 'todos';
 	const estado = document.getElementById("select-estado-filtro").value || 'todos';
-	return { est, estado};
+	return { est, estado };
 } 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -28,22 +30,30 @@ document.addEventListener("DOMContentLoaded", () => {
 		cargarLugaresPorEstacionamiento(e.target.value);
 	});
 
+	// Botón CREAR (Abre el tablero superior en modo creación)
 	btnCreate.addEventListener('click', () => {
 		limpiarFormularioReserva();
+		formContainer.dataset.mode = "create";
+		formContainer.querySelector("h3").textContent = "Nueva Reserva";
+		
 		const filtros = obtenerFiltrosActuales();
-		if(filtros.est !== 'todos') {
+		if (filtros.est !== 'todos') {
 			selectEstForm.value = filtros.est;
 			cargarLugaresPorEstacionamiento(filtros.est);
 		}
+		
 		formContainer.style.display = 'block';
+		formContainer.scrollIntoView({ behavior: 'smooth' });
 	});
 
+	// Botón CANCELAR del formulario
 	btnCancelar.addEventListener('click', () => {
 		limpiarFormularioReserva();
 		formContainer.style.display = 'none';
 	});
 
-	btnGuardar.addEventListener('click', guardarReserva);
+	// Botón GUARDAR unificado (procesa creación o edición)
+	btnGuardar.addEventListener('click', procesarFormularioReserva);
 
 	cargarEstacionamientos();
 });
@@ -57,8 +67,8 @@ async function cargarEstacionamientos() {
 		const data = await res.json();
 
 		if (res.ok && Array.isArray(data)) {
-			let opcionesFiltro = '<option value="todos"> Todos los estacionamientos</option>';
-			let opcionesForm = '<option value=""> Selecciona un estacionamiento...</option>';
+			let opcionesFiltro = '<option value="todos">Todos los estacionamientos</option>';
+			let opcionesForm = '<option value="">Selecciona un estacionamiento...</option>';
 
 			data.forEach(est => {
 				opcionesFiltro += `<option value="${est.estacionamiento_id}">${est.nombre}</option>`;
@@ -75,10 +85,10 @@ async function cargarEstacionamientos() {
  
 async function cargarLugaresPorEstacionamiento(estacionamiento_id) {
 	const selectLugar = document.getElementById('select-lugar');
-	selectLugar.innerHTML = `<option value="">Cargar lugares..</option>`;
+	selectLugar.innerHTML = `<option value="">Cargando lugares...</option>`;
 
 	if (!estacionamiento_id) {
-		selectLugar.innerHTML = `<option value=""> Selecciona primero un estacionamiento ...</option>`;
+		selectLugar.innerHTML = `<option value="">Selecciona primero un estacionamiento...</option>`;
 		return;
 	}
 
@@ -87,16 +97,16 @@ async function cargarLugaresPorEstacionamiento(estacionamiento_id) {
 		const lugares = await res.json();
 
 		if (res.ok && Array.isArray(lugares) && lugares.length > 0) {
-			selectLugar.innerHTML = `<option value=">Selecciona un lugar ...</option>`;
+			selectLugar.innerHTML = `<option value="cualquiera">Cualquiera (Selección automática)</option>`;
 			lugares.forEach(l => {
 				selectLugar.innerHTML += `<option value="${l.lugar_id}">Lugar #${l.numero || l.lugar_id}</option>`;
 			});
 		} else {
-			selectLugar.innerHTML = `<option value=""> No hay lugares disponibles</option>`;
+			selectLugar.innerHTML = `<option value="">No hay lugares disponibles</option>`;
 		}
 	} catch (err) {
-		console.warn("No se pudo cargar los lugares individualmente, se usara asignacion automatica.", err);
-		selectLugar.innerHTML = `<option value="">Error al cargar lugares</option>`;
+		console.warn("No se pudo cargar los lugares individualmente.", err);
+		selectLugar.innerHTML = `<option value="cualquiera">Cualquiera (Selección automática)</option>`;
 	}
 }
 
@@ -105,6 +115,7 @@ function aplicarFiltros() {
 	cargarReservas(est, estado);
 }
 
+// Cargar listado de reservas y aplicar diseño de botones idéntico a Estacionamientos
 async function cargarReservas(estacionamiento_id = 'todos', estado = 'todos') {
 	const tbody = document.getElementById('tbody-reservas');
 	if (!tbody) return;
@@ -112,105 +123,198 @@ async function cargarReservas(estacionamiento_id = 'todos', estado = 'todos') {
 	try {
 		const res = await fetch(`/api/reserva?estacionamiento_id=${estacionamiento_id}&estado=${estado}`);
 		const reservas = await res.json();
+		cacheReservas = Array.isArray(reservas) ? reservas : [];
 
-		if (!Array.isArray(reservas) || reservas.length === 0){
-			tbody.innerHTML =`
+		if (cacheReservas.length === 0) {
+			tbody.innerHTML = `
 				<tr>
-					<td colspan= "7" style="text-align: center; padding: 20px;">
+					<td colspan="7" style="text-align: center; padding: 20px;">
 						No se encontraron reservas registradas.
 					</td>
 				</tr>
 			`;
 			return;
 		}
-		tbody.innerHTML = Array.isArray(reservas) && reservas.length >0
-			? reservas.map(r => `
-				<tr id="fila-reserva-${r.reserva_id}">
-					<td><strong>${r.nombre || 'Est. ' + r.estacionamiento_id}</strong><br><small>Lugar #${r.numero || r.lugar_id}</small></td>
-					<td class="celda-patente" data-valor="${r.patente_manual || ''}">${r.patente_manual || '-'}</td>
-					<td class="celda-ingreso" data-valor="${r.fecha_ingreso}">${formatearFecha(r.fecha_ingreso)}</td>
-					<td class="celda-salida" data-valor="${r.fecha_salida}">${formatearFecha(r.fecha_salida)}</td>
-					<td><small>${r.origen_reserva || 'manual'}</small></td>
-					<td><span class="badge badge-${r.estado || 'activa'}">${r.estado || 'activa'}</span></td>
-					<td class="celda-acciones">
-						${r.estado !== 'cancelada' ? `<button class="btn-action btn-prymari" onclick="editarReserva(${r.reserva_id})">Editar</button>
-						<button class="btn-action btn-secondary" onclick="cancelarReserva(${r.reserva_id})">Cancelar</button>` : '_'} 
-					</td>
-				</tr>
-			`).join('')
-			: '<tr><td colspan="7">No se encontraron reservas registradas.</td></tr>';
+
+		tbody.innerHTML = cacheReservas.map(r => `
+			<tr id="fila-reserva-${r.reserva_id}">
+				<td><strong>${r.nombre || 'Est. ' + r.estacionamiento_id}</strong><br><small>Lugar #${r.numero || r.lugar_id}</small></td>
+				<td>${r.patente_manual || '-'}</td>
+				<td>${formatearFecha(r.fecha_ingreso)}</td>
+				<td>${formatearFecha(r.fecha_salida)}</td>
+				<td><small>${r.origen_reserva || 'manual'}</small></td>
+				<td><span class="badge badge-${r.estado || 'activa'}">${r.estado || 'activa'}</span></td>
+				<td>
+					<button class="btn-action view" onclick="verDetalleReserva(${r.reserva_id})">VER</button>
+					${r.estado !== 'cancelada' ? `
+						<button class="btn-action edit" onclick="prepararEdicionReserva(${r.reserva_id})">MODIFICAR</button>
+						<button class="btn-action delete" onclick="cancelarReserva(${r.reserva_id})">ELIMINAR</button>
+					` : ''}
+				</td>
+			</tr>
+		`).join('');
 	} catch (err) {
 		console.error("Error cargando reservas:", err);
 	}
 }
 
-async function guardarReserva() {
+// Procesar Formulario (Detecta automáticamente si está creando o editando)
+async function procesarFormularioReserva() {
+	const formContainer = document.getElementById("form-container");
+	const mode = formContainer.dataset.mode;
+
 	const estacionamiento_id = document.getElementById('select-estacionamiento').value;
-	const tipo_lugar = document.getElementById('select-tipo-lugar')?.value || '';
+	const tipo_lugar = document.getElementById('select-tipo-lugar')?.value || 'Normal';
+	const lugar_id = document.getElementById('select-lugar').value;
 	const patente = document.getElementById('inputPatente').value.trim();
-	const origen = document.getElementById('selectOrigen').value || 'manul';
+	const origen = document.getElementById('selectOrigen').value || 'admin';
 	const fechaInicio = document.getElementById('inputFechaInicio').value;
 	const fechaFin = document.getElementById('inputFechaFin').value;
 
-	if (!estacionamiento_id || !tipo_lugar || !fechaInicio || !fechaFin) {
-		Swal.fire('Atencion', "Por favor completa el estacionamiento, Lugar, y las fechas de entrada/Salida", 'warning');
+	if (!estacionamiento_id || !fechaInicio || !fechaFin) {
+		Swal.fire('Atención', "Por favor completa el estacionamiento y las fechas de entrada/salida", 'warning');
 		return;
 	}
-	const payload = {
-		estacionamiento_id: parseInt(estacionamiento_id),
-		tipo_lugar: tipo_lugar,
-		patente_manual: patente,
-		origen_reserva: origen,
-		fecha_ingreso: fechaInicio,
-		fecha_salida: fechaFin
-	};
 
-	try {
-		const res = await fetch('/api/reserva', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json'},
-			body: JSON.stringify(payload)
-		});
-
-		if (res.ok) {
-			Toast.fire({ icon: 'success', title: 'Reserva registrada con exito'});
-			limpiarFormularioReserva();
-			document.getElementById('form-container').style.display = 'none';
-			aplicarFiltros();
-		} else {
-			const errData = await res.json();
-			Swal.fire('Error', errData.message || 'No se pudo crear reserva', 'error');
-		}
-	} catch (err){
-		console.error("Error gurdando reserva:", err);
-		Swal.fire('Error','Fallo de conexion con el servidor','error');
+	if (new Date(fechaFin) <= new Date(fechaInicio)) {
+		Swal.fire('Atención', 'La fecha de salida debe ser posterior a la fecha de entrada', 'warning');
+		return;
 	}
 
+	if (mode === "create") {
+		const payload = {
+			estacionamiento_id: parseInt(estacionamiento_id),
+			tipo_lugar: tipo_lugar,
+			lugar_id: lugar_id && lugar_id !== 'cualquiera' ? parseInt(lugar_id) : undefined,
+			patente_manual: patente,
+			origen_reserva: origen,
+			fecha_ingreso: fechaInicio,
+			fecha_salida: fechaFin
+		};
+
+		try {
+			const res = await fetch('/api/reserva', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
+
+			if (res.ok) {
+				Toast.fire({ icon: 'success', title: 'Reserva registrada con éxito' });
+				formContainer.style.display = 'none';
+				aplicarFiltros();
+			} else {
+				const errData = await res.json();
+				Swal.fire('Error', errData.message || 'No se pudo crear reserva', 'error');
+			}
+		} catch (err) {
+			console.error("Error guardando reserva:", err);
+			Swal.fire('Error', 'Fallo de conexión con el servidor', 'error');
+		}
+
+	} else if (mode === "edit") {
+		const id = formContainer.dataset.editId;
+		const payload = {
+			patente_manual: patente,
+			fecha_ingreso: fechaInicio,
+			fecha_salida: fechaFin
+		};
+
+		try {
+			const res = await fetch(`/api/reserva/${id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
+
+			if (res.ok) {
+				Toast.fire({ icon: 'success', title: 'Reserva actualizada con éxito' });
+				formContainer.style.display = 'none';
+				aplicarFiltros();
+			} else {
+				const errData = await res.json();
+				Swal.fire('Error', errData.message || 'No se pudo actualizar la reserva', 'error');
+			}
+		} catch (err) {
+			console.error("Error actualizando reserva:", err);
+			Swal.fire('Error', 'Fallo de conexión con el servidor', 'error');
+		}
+	}
 }
 
+// Preparar el formulario superior con los datos de la reserva seleccionada (MODIFICAR)
+async function prepararEdicionReserva(id) {
+	const reserva = cacheReservas.find(r => r.reserva_id === id);
+	if (!reserva) return;
+
+	const formContainer = document.getElementById("form-container");
+	formContainer.dataset.mode = "edit";
+	formContainer.dataset.editId = id;
+	formContainer.querySelector("h3").textContent = `Modificar Reserva (ID: ${id})`;
+
+	// Cargar valores en los inputs
+	const selectEst = document.getElementById("select-estacionamiento");
+	selectEst.value = reserva.estacionamiento_id || '';
+	
+	await cargarLugaresPorEstacionamiento(reserva.estacionamiento_id);
+	document.getElementById("select-lugar").value = reserva.lugar_id || '';
+
+	document.getElementById("inputPatente").value = reserva.patente_manual || '';
+	document.getElementById("selectOrigen").value = reserva.origen_reserva || 'admin';
+	document.getElementById("inputFechaInicio").value = aFormatoInputDateTime(reserva.fecha_ingreso);
+	document.getElementById("inputFechaFin").value = aFormatoInputDateTime(reserva.fecha_salida);
+
+	formContainer.style.display = "block";
+	formContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Ver detalles en un popup flotante
+function verDetalleReserva(id) {
+	const reserva = cacheReservas.find(r => r.reserva_id === id);
+	if (!reserva) return;
+
+	Swal.fire({
+		title: `Detalles de Reserva #${reserva.reserva_id}`,
+		html: `
+			<div style="text-align: left; font-size: 14px; line-height: 1.6;">
+				<p><b>Estacionamiento:</b> ${reserva.nombre || reserva.estacionamiento_id}</p>
+				<p><b>Lugar asignado:</b> #${reserva.numero || reserva.lugar_id}</p>
+				<p><b>Matrícula / Patente:</b> ${reserva.patente_manual || '-'}</p>
+				<p><b>Entrada:</b> ${formatearFecha(reserva.fecha_ingreso)}</p>
+				<p><b>Salida:</b> ${formatearFecha(reserva.fecha_salida)}</p>
+				<p><b>Origen:</b> ${reserva.origen_reserva || 'manual'}</p>
+				<p><b>Estado:</b> ${reserva.estado || 'activa'}</p>
+			</div>
+		`,
+		icon: 'info',
+		confirmButtonText: 'Cerrar'
+	});
+}
+
+// Cancelar / Eliminar reserva
 async function cancelarReserva(id) {
 	const result = await Swal.fire({
-		title: 'Cancelar Reserva?',
-		text: "La reserva pasara a estar inactiva/cancelada.",
+		title: '¿Cancelar esta reserva?',
+		text: "La reserva pasará a estar inactiva/cancelada.",
 		icon: 'warning',
-		showCancelarButton: true,
+		showCancelButton: true,
 		confirmButtonColor: '#dc3545',
 		cancelButtonColor: '#6c757d',
-		confirmButtonText: 'Si, cancelar',
-		cancelarButtontext: 'Volver'
+		confirmButtonText: 'Sí, cancelar',
+		cancelButtonText: 'Volver'
 	});
 
-	if(result.isConfirmed) {
+	if (result.isConfirmed) {
 		try {
-			const res = await fetch(`/api/reserva/cancelar/${id}`, {method: 'PUT'});
+			const res = await fetch(`/api/reserva/cancelar/${id}`, { method: 'PUT' });
 			if (res.ok) {
-				Toast.fire({ icon: 'success', title: 'Reserva cancelada'});
+				Toast.fire({ icon: 'success', title: 'Reserva cancelada con éxito' });
 				aplicarFiltros();
 			} else {
 				Swal.fire('Error', 'No se pudo cancelar la reserva', 'error');
 			}
 		} catch (err) {
-			Swal.fire('Error', 'Error al comunicar con el servidor', 'error');
+			Swal.fire('Error', 'Error al comunicarse con el servidor', 'error');
 		}
 	}
 }
@@ -219,86 +323,20 @@ function limpiarFormularioReserva() {
 	document.getElementById('select-estacionamiento').value = '';
 	document.getElementById('select-lugar').innerHTML = `<option value="">Selecciona primero un estacionamiento...</option>`;
 	document.getElementById('inputPatente').value = '';
-	document.getElementById('selectOrigen').value = 'manual';
+	document.getElementById('selectOrigen').value = 'admin';
 	document.getElementById('inputFechaInicio').value = '';
 	document.getElementById('inputFechaFin').value = '';
 }
 
 function formatearFecha(cadenaFecha) {
-	if(!cadenaFecha) return '-';
+	if (!cadenaFecha) return '-';
 	const f = new Date(cadenaFecha);
 	if (isNaN(f.getTime())) return '-';
-	return f.toLocaleString('es-UY', {dateStyle: 'short', timeStyle: 'short'});
-}
-function editarReserva(id) {
-	const fila = document.getElementById(`fila-reserva-${id}`);
-	if (!fila) return;
-
-	const celdaPatente = fila.querySelector('.celda-patente');
-	const celdaIngreso = fila.querySelector('.celda-ingreso');
-	const celdaSalida = fila.querySelector('.celda-salida');
-	const celdaAcciones = fila.querySelector('.celda-acciones');
-
-	const patenteVal = celdaPatente.dataset.valor || '';
-	const ingresoVal = aFormatoInputDateTime(celdaIngreso.dataset.valor);
-	const salidaVal = aFormatoInputDateTime(celdaSalida.dataset.valor);
-
-	celdaPatente.innerHTML = `<input type="text" class="form-control from-control-sm input-edit-patente" value="${patenteVal}">`;
-	celdaIngreso.innerHTML = `<input type="datetime-local" class="form-control from-control-sm input-edit-ingreso" value="${ingresoVal}">`;
-	celdaSalida.innerHTML = `<input type="datetime-local" class="form-control from-control-sm input-edit-salida" value="${salidaVal}">`;
-
-	celdaAcciones.innerHTML = `
-		<button class="btn-accion btn-success" onclick="guardarEdicionInline(${id})">Guardar</button>
-		<button class="btn-accion btn-secondary" onclick="cancelarEdicionInline()">Cancelar</button>
-	`;
+	return f.toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' });
 }
 
-async function guardarEdicionInline(id) {
-	const fila = document.getElementById(`fila-reserva-${id}`);
-	if(!fila) return;
-
-	const patente = fila.querySelector('.input-edit-patente').value.trim();
-	const fechaInicio = fila.querySelector('.input-edit-ingreso').value;
-	const fechaFin = fila.querySelector('.input-edit-salida').value;
-
-	if (!fechaInicio) {
-		Swal.fire('Atencion', 'La Fecha de ingreso debe ser obligatoria', 'warning');
-		return;
-	}
-	if (new Date(fechaFin) <= new Date(fechaInicio)) {
-		Swal.fire('Atencion','La fecha de salida debe ser posterior a la fecha de entrada', 'warning');
-		return;
-	}
-	const payload = {
-		patente_manual: patente,
-		fecha_ingreso: fechaInicio,
-		fecha_salida: fechaFin
-	};
-
-	try {
-		const res = await fetch(`/api/reserva/${id}`, {
-			method:'PUT',
-			headers: {'content-Type':'application/json'},
-			body: JSON.stringify(payload)
-		});
-		if(res.ok) {
-			Toast.fire({icon:'success', title: 'Reserva actualizada con exito'});
-			aplicarFiltros();
-		} else {
-			const errData = await res.json();
-			Swal.fire('Error', errData.message || ' No se pudo actualizar la reserva', 'error');
-		}
-	} catch (err) {
-		console.error("Error actualizando reserva: ", err);
-		Swal.fire('Error','Fallo de conexion con el servidor', 'error');
-	}
-}
-
-function cancelarEdicionInline() {
-	aplicarFiltros();
-}
-function aFormatoInputDateTime (cadenaFecha) {
-	if(!cadenaFecha) return '';
-	let limpio = cadenaFecha.replace('T',' ').substring(0,16);
+function aFormatoInputDateTime(cadenaFecha) {
+	if (!cadenaFecha) return '';
+	let limpio = cadenaFecha.replace('T', ' ').substring(0, 16);
 	return limpio.replace(' ', 'T');
 }

@@ -33,11 +33,12 @@ async function seleccionRol(rol) {
 				window.location.href = "/cliente_view.html";
 			}
 		} else {
-			alert("Error al actualizar el rol: " + resJson.message);
+			const resJson = await respuesta.json();
+			console.log("Error al actualizar el rol: " + (resJson.message || "Error desconocido."));
 		}
 	} catch (error) {
 		console.error("Error de conexion con la Rasberry:", error);
-		alert("No se pudo conectar con el servidor.");
+		console.log("No se pudo conectar con el servidor.");
 	}
 }
 //linea para que el onclick funcione correctamente

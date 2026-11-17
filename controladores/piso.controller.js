@@ -8,9 +8,10 @@ export const getPisos = async (req, res) => {
 
     try {
         let sql = `
-            SELECT P.* FROM Piso P 
-            INNER JOIN Estacionamiento E ON P.estacionamiento_id = E.estacionamiento_id 
-            WHERE E.usuario_id = ? AND P.activo = 1
+            select P.*, E.nombre AS estacionamiento_nombre
+            from Piso P
+            inner join Estacionamiento E on P.estacionamiento_id = E.estacionamiento_id
+            where E.usuario_id = ? and P.activo = 1 
         `;
         const params = [usuario_id];
         if (estacionamiento_id && estacionamiento_id !== 'todos') {

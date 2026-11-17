@@ -57,6 +57,15 @@ async function login(req, res) {
 				message: "Error duarante el login"
 			});
 		}
+		let urlRedireccion = '/admin';
+
+		if (usuarioBD.rol === 'pendiente'){
+			urlRedireccion = "/seleccion-rol.html";
+		} else if (usuarioBD.rol === 'cliente') {
+			urlRedireccion = "/cliente_view.html";
+		}else if (usuarioBD.rol === 'admin') {
+			urlRedireccion = "/admin_view.html";
+		}
 
 		req.session.usuario_id = usuarioBD.usuario_id;
 		res.status(200).send({
@@ -64,7 +73,7 @@ async function login(req, res) {
 			message: "Usuario logueado",
 			userName: usuarioBD.user_name,
 			rol: usuarioBD.rol,
-			redirect: usuarioBD.rol === 'pendiente' ? "/seleccion-rol.html" : "/admin"
+			redirect: urlRedireccion
 		});
 	} catch (error) {
 		console.error("Error en login:", error);
@@ -186,6 +195,16 @@ const eliminarEstacionamiento = async (req, res) => {
 	}
 };
 
+export const cerrarSesion = (req,res) => {
+	req.session.destroy(err => {
+		if (err) {
+			return res.status(500).json({ message: "No se pudo cerrar la sesion."});
+		}
+		res.clearCookie('connect.sid');
+		return res.status(200).json({message: 'Sesion cerrada correctamente.'});
+	});
+};
+
 export const metodos = {
 	login,
 	registro,
@@ -193,5 +212,6 @@ export const metodos = {
 	obtenerEstacionamientos,
 	crearEstacionamiento,
 	modificarEstacionamiento,
-	eliminarEstacionamiento
+	eliminarEstacionamiento,
+	cerrarSesion
 };

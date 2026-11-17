@@ -9,6 +9,8 @@ import { metodos as validacion } from "./controladores/validacion.control.js";
 import pisoRoutes from './routes/piso.routes.js'; 
 import lugaresRoutes from './routes/lugares.routes.js';
 import reservaRoutes from './routes/reserva.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import clienteRouters from './routes/cliente.routes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,14 +26,15 @@ app.use(session({
     secret: 'labiastin',
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
         secure: false,
-        maxAge: 1000 * 60 * 60 * 24
+        maxAge: 60 * 1000
     }
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use('/api',authRoutes);
 app.use('/api/pisos', pisoRoutes);
 app.use('/api', lugaresRoutes);
 app.use('/api/reserva', reservaRoutes);
@@ -54,5 +57,5 @@ app.put("/api/estacionamientos/:id", (req, res) => validacion.modificarEstaciona
 app.delete("/api/estacionamientos/:id", deleteEstacionamiento);
 app.post("/api/crearPiso", (req,res) => validacion.crearPiso(req, res));
 
-
+app.use('/api', clienteRouters);
 export default app;
