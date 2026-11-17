@@ -7,7 +7,7 @@ import {
 } from '../controladores/cliente.controller.js';
 const router = express.Router();
 router.get('/parkings-disponibles', getParkingsDisponibles);
-router.post('/cliente/reservar-por-parking',reservarPorParking);
+router.post('/cliente/reserva-por-parking',reservarPorParking);
 router.get('/cliente/mis-reservas', getMisReservas);
 router.put('/cliente/reservas/:id/cancelar',cancelarReserva);
 export default router;

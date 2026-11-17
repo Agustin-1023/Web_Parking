@@ -135,11 +135,11 @@ document.addEventListener("click", async (e) => {
             title:"Confirmar Reserva?",
             text: `Desea Reservar un espacio disponible en "${nombreParking}"?`,
             icon: "question",
-            showCancelarButton: true,
+            showCancelButton: true,
             confirmButtonColor: "#211A60",
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Si, reservar",
-            cancelarButtonText: "Cancelar",
+            cancelButtonText: "Cancelar",
             reverseButtons: true,
 
         }).then(async (result) => {
@@ -148,7 +148,7 @@ document.addEventListener("click", async (e) => {
                     const res = await fetch("/api/cliente/reserva-por-parking",{
                         method: "POST",
                         headers: { "Content-Type": "application/json"},
-                        body: JSON.strigify({
+                        body: JSON.stringify({
                             user_name: userName,
                             id_parking: idParking,
                         }),
@@ -187,9 +187,9 @@ document.addEventListener("click", async (e) => {
         title: "Estas seguro?",
         text: `Deseas cancelar la reserva #${idReserva}? Esta accion libera el espacio.`,
         icon: "warning",
-        showCancelarButton: true,
+        showCancelButton: true,
         confirmButtonColor: "#dc3545",
-        cancelarButtonColor: "#6c757d",
+        cancelButtonColor: "#6c757d",
         confirmButtonText: "Si, cancelar reserva",
         confirmButtonText: "No, mantener Reserva",
         reverseButtons: true,
