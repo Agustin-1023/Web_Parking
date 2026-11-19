@@ -11,6 +11,8 @@ import lugaresRoutes from './routes/lugares.routes.js';
 import reservaRoutes from './routes/reserva.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import clienteRouters from './routes/cliente.routes.js';
+import vehiculosRoutes from './routes/vehiculos.routes.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -18,6 +20,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
     origin: "192.168.1.49:9000",
     credentials: true
@@ -34,10 +37,12 @@ app.use(session({
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use('/api',authRoutes);
 app.use('/api/pisos', pisoRoutes);
 app.use('/api', lugaresRoutes);
 app.use('/api/reserva', reservaRoutes);
+
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.post("/register", (req, res) => res.sendFile(path.join(__dirname, "Registros.html")));
 
@@ -56,6 +61,6 @@ app.post("/api/estacionamientos", (req, res) => validacion.crearEstacionamiento(
 app.put("/api/estacionamientos/:id", (req, res) => validacion.modificarEstacionamiento(req, res));
 app.delete("/api/estacionamientos/:id", deleteEstacionamiento);
 app.post("/api/crearPiso", (req,res) => validacion.crearPiso(req, res));
-
+app.use('/api/cliente/vehiculos', vehiculosRoutes);
 app.use('/api', clienteRouters);
 export default app;

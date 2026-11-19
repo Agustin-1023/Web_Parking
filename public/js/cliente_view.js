@@ -55,7 +55,7 @@ async function cargarEspaciosDisponibles() {
                     <button class="btn btn-primary btn-reservar-parking"
                         data-id-parking="${lugar.id_parking}"
                         data-parking="${lugar.nombre_parking}">
-                        RESERVAR
+                        RESERVAR AHORA
                     </button>
                 </TD>
             `;
@@ -102,7 +102,8 @@ async function cargarMisReservas() {
                     <td>${reserva.fecha_salida || "En curso"}</td>
                     <td><span class="badge ${esActiva ? "badge-primary" : "badge-success"}">${reserva.estado}</span></td>
                     <td>
-                        ${esActiva ? `<button class="btn btn-eliminar btn-cancelar" data-id="${reserva.id_reserva}">CANCELAR</button>` : "-"}
+                        ${esActiva ? `<button class="btn btn-finalizar btn-finalizar" data-id="${reserva.id_reserva}">FINALIZAR</button>
+                                      <button class="btn btn-eliminar btn-cancelar" data-id="${reserva.id_reserva}">CANCELAR</button>` : "-"}
                     </td>
                     `;
                 historialBody.appendChild(tr);

@@ -92,7 +92,7 @@ export const getMisReservas = async (req, res) => {
 	const { user_name } = req.query;
 	try {
 		const query = `
-			select r.reserva_id as id_reserva, r.estado_reserva, r.fecha_ingreso, r.fecha_salida,
+			select r.reserva_id as id_reserva, r.estado_reserva as estado, r.fecha_ingreso, r.fecha_salida,
 			p.numero_piso, l.codigo_lugar, l.tipo_lugar, e.nombre as nombre_parking
 			from Reserva r
 			join Usuario u on r.usuario_id = u.usuario_id

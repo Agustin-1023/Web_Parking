@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Reservas - Parking</title>
+    <link rel="stylesheet" href="./css/cliente-view.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="user-status-bar">
+        <span id="user-display-name" style="magin-richt:15px; font-weight: bold; color: #211A60;">Cargando... </span>
+        <span class="status-label">Estado de Cuenta:</span>
+        <span id="userStatusBadge" class="badge badge-primary">Sin reserva activa</span>
+    </div>
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div href="cliente_view.html" class="sidebar-title">Portal Cliente</div>
+            <nav class="sidebar-menu">
+                <a href="cliente_view.html">Buscar Lugar</a> 
+                <a href="#mis-reservas">Mis Reservas</a>
+                <a href="#mis-vehiculos" class="activa">Mis Vehiculos</a>
+                <a href="#">Mi Perfil</a>
+                <a href="#">Configuraciones</a> 
+                <a href="/index.html" class="logout-btn">Cerrar Sesion</a>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            <header class="content-header">
+                <h1>PANEL DE VEHICULOS</h1>
+                <p class="welcome-msg">Bienvenido, <span id="nombre-usuario">Cliente</span></p>
+            </header>
+
+            <section id="mis-vehiculos" class="card-container" style="margin-top: 30px;">
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 class="section-title">Mis Vehiculos Activos</h2>
+                    <button id="btn-agregar-vehiculo" class="btn-primary" style="padding: 8px 15px; cursor: pointer;"> + NUEVO VEHICULO</button>    
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Matriculas</th>
+                                <th>Marcas</th>
+                                <th>Modelos</th>
+                                <th>Estado</th>
+                                <th>Principal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-vehiculos-body">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./js/cliente_vehiculo.js" defer></script>
+</body>
+</html>
