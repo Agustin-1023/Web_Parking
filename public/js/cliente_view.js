@@ -14,6 +14,7 @@ async function cargarDatosDashboard() {
     try {
         await Promise.all([
             obtenerPerfilUsuario(),
+            cargarPatentesEnBarra(),
             cargarEspaciosDisponibles(),
             cargarMisReservas()
         ]);
@@ -131,6 +132,8 @@ document.addEventListener("click", async (e) => {
         const idParking = btn.getAttribute("data-id-parking");
         const nombreParking = btn.getAttribute("data-parking");
         const userName = localStorage.getItem("usuario");
+        const selectPatente = document.getElementById("select-patente-activa");
+        const matriculaSelecionada = selectPatente ? selectPatente.value : "";
 
         Swal.fire({
             title:"Confirmar Reserva?",
@@ -152,6 +155,7 @@ document.addEventListener("click", async (e) => {
                         body: JSON.stringify({
                             user_name: userName,
                             id_parking: idParking,
+                            matricula: matriculaSelecionada || null
                         }),
                     });
                     const data = await res.json();
@@ -224,3 +228,48 @@ document.addEventListener("click", async (e) => {
     });
     }
 });
+async function cargarPatentesEnBarra() {
+    const selectPatente = document.getElementById("select-patente-activa");
+    if (!selectPatente) return;
+    const userName = localStorage.getItem("usuario") || "cliente";
+
+    try {
+        const response = await fetch(
+        `/api/cliente/vehiculos?user_name=${encodeURIComponent(userName)}`
+        );
+        if (!response.ok) throw new Error("Error al obtener vehiculos del usuario");
+
+        const vehiculos = await response.json();
+        selectPatente.innerHTML ="";
+
+        if(!Array.isArray(vehiculos) || vehiculos.length === 0) {
+            selectPatente.innerHTML  =`<option value="">Sin Patentes</option>`;
+            localStorage.removeItem("patenteSelecionada");
+            return;
+        }
+        const ordenados = [...vehiculos].sort(
+            (a,b) => (b.es_principal ? 1 : 0) - (a.es_principal ? 1 : 0)
+        );
+        ordenados.forEach((v, index) => {
+            const option = document.createElement("option");
+            option.value = v.matricula;
+            option.dataset.vehiculoId = v.vehiculo_id;
+            option.textContent = v.es_principal
+                ? `${v.matricula} (Principal)`
+                : v.matricula;
+
+            if (index === 0 || v.es_principal) {
+                option.selected = true;
+            }
+            selectPatente.appendChild(option);
+        });
+        localStorage.setItem("patenteSelecionada", selectPatente.value);
+
+        selectPatente.addEventListener("change", (e) => {
+            localStorage.setItem("patenteSelecionada", e.target.value);
+        });
+    } catch (error) {
+        console.error("Error al cargar patentes en barra: ", error);
+        selectPatente.innerHTML = `<option value="">Error al cargar</option>`;
+    }
+}

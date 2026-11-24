@@ -1,5 +1,6 @@
 import pool from '../db.js';
 import bcrypt from 'bcryptjs';
+import { enviarCorreo } from '../utils/mailer.js';
 
 async function registro(req, res) {
 	const { nombre, userName, email, phone, password } = req.body;
@@ -15,6 +16,23 @@ async function registro(req, res) {
 		const valores = [userName, nombre, email, phone, passwordHash];
 		await pool.query(query, valores);
 
+		const htmlBienvenida = `
+			<div style="front-family: Arial, sant-serif; color: #181a25;">
+				<h2 style="color: #14124b;"> Bienvendio a Parcking!</h2>
+				<p> HOla <strong>${nombre}</strong> (strong>${userName}</strong>), tu cuenta fue creada correctamente.</p>
+				<p>Ya puedes iniciar sesion y comentar a gestionar tus vehiculos y reservas.</p>
+			</div>
+		`
+		const correoEnviado = await enviarCorreo(
+			email,
+			'bienvenido a Parking - Cuenta creada',
+			htmlBienvenida
+		);
+
+		if (!correoEnviado) {
+			console.warn(`Usuario ${userName} registrado, pero fallo en envio del correo a ${email}.`);
+		}
+		
 		res.status(201).send({
 			status: "ok", 
 			message: "!Usuario Guardado en BD",

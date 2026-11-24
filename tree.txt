@@ -1,0 +1,85 @@
+.
+├── app.js
+├── back.hoy.sql
+├── backup_bd.sql
+├── controladores
+│   ├── cliente.controller.js
+│   ├── estacionamiento.controller.js
+│   ├── lugares.controller.js
+│   ├── piso.controller.js
+│   ├── reserva.controller.js
+│   ├── validacion.control.js
+│   └── vehiculos.controller.js
+├── db2.js
+├── db.js
+├── docker-compose.yml
+├── Dockerfile
+├── estructura.sql
+├── package.json
+├── package-lock.json
+├── public
+│   ├── admin_lugar.html
+│   ├── admin_paking.html
+│   ├── admin_piso.html
+│   ├── assets
+│   │   ├── background2.png
+│   │   ├── background.png
+│   │   ├── background.webp
+│   │   ├── imagen 1.jpeg
+│   │   ├── img-background.jpg
+│   │   ├── img-background.png
+│   │   ├── img-background.webp
+│   │   └── svg
+│   │       ├── key.svg
+│   │       └── user.svg
+│   ├── cliente_vehiculos.html
+│   ├── cliente_view.html
+│   ├── css
+│   │   ├── admin_lugar.css
+│   │   ├── admin_parking.css
+│   │   ├── admin_piso.css
+│   │   ├── cliente-view.css
+│   │   ├── master.css
+│   │   ├── panel_admin.css
+│   │   ├── Registros.css
+│   │   ├── reservas.css
+│   │   └── seleccion-roles.css
+│   ├── index.html
+│   ├── js
+│   │   ├── admin_lugares.js
+│   │   ├── admin_paking.js
+│   │   ├── admin_piso.js
+│   │   ├── cliente_vehiculo.js
+│   │   ├── cliente_view.js
+│   │   ├── global.js
+│   │   ├── index.js
+│   │   ├── registros.js
+│   │   ├── reservas.js
+│   │   └── select-rol.js
+│   ├── Registros.html
+│   ├── reservas.html
+│   └── seleccion-rol.html
+├── README.md
+├── Respaldo2.sql
+├── respaldo_parking.sql
+├── routes
+│   ├── auth.routes.js
+│   ├── cliente.routes.js
+│   ├── lugares.routes backup.js
+│   ├── lugares.routes.js
+│   ├── piso.routes.js
+│   ├── reserva.routes.js
+│   └── vehiculos.routes.js
+├── routes.js
+├── salida.test
+├── server.js
+├── tests
+│   ├── estacionamientos.test.js
+│   ├── middleware.test.js
+│   ├── registro.test.js
+│   └── reserva.test.js
+├── tree.txt
+└── utils
+    └── mailer.js
+
+10 directories, 73 files

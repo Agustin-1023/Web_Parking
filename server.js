@@ -9,7 +9,7 @@ app.listen(app.get("port"), () => {
 
 cron.schedule('* * * * *', async() => {
 	try {
-		await db.query(`update Reserva set estado_reserva = 'Completada' where estado_reserva = 'Activa' and fecha_salida <= now()`);
+		//await db.query(`update Reserva set estado_reserva = 'Completada' where estado_reserva = 'Activa' and fecha_salida <= now()`);
 	} catch (err) {
 		console.error('Error en cron:', err);
 	}

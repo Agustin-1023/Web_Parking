@@ -10,8 +10,11 @@
 </head>
 <body>
     <div class="user-status-bar">
+        <span class="status-label">Cuenta:</span>
         <span id="user-display-name" style="magin-richt:15px; font-weight: bold; color: #211A60;">Cargando... </span>
-        <span class="status-label">Estado de Cuenta:</span>
+        <select id="select-patente-activa" class="select-patente" arial-label="Seleccionar patente">
+            <option value="">Sin vehiculos</option>
+        </select>
         <span id="userStatusBadge" class="badge badge-primary">Sin reserva activa</span>
     </div>
     <div class="main-wrapper">
@@ -29,7 +32,7 @@
 
         <main class="content-area">
             <header class="content-header">
-                <h1>PANEL DE RESERVAS Y DISPONIBILIDAD</h1>
+                <h1>RESERVAS Y DISPONIBILIDAD</h1>
                 <p class="welcome-msg">Bienvenido, <span id="nombre-usuario">Cliente</span></p>
             </header>
 
